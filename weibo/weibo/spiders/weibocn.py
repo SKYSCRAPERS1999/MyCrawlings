@@ -34,14 +34,19 @@ class WeibocnSpider(Spider):
                 'follows_count': 'follow_count', 'weibos_count': 'statuses_count', 'verified': 'verified',
                 'verified_reason': 'verified_reason', 'verified_type': 'verified_type'
             }
+            if (not user_info.get('followers_count')) or user_info.get('followers_count') < 2000000:
+                return
+            if user_info.get('verified_type') == -1:
+                return
+            
             for field, attr in field_map.items():
                 user_item[field] = user_info.get(attr)
             yield user_item
             
             uid = user_info.get('id')
             # 微博
-            yield Request(self.weibo_url.format(uid=uid, page=1), callback=self.parse_weibos,
-                          meta={'page': 1, 'uid': uid})
+            #yield Request(self.weibo_url.format(uid=uid, page=1), callback=self.parse_weibos,
+            #              meta={'page': 1, 'uid': uid})
             
             # 关注
             yield Request(self.follow_url.format(uid=uid, page=1), callback=self.parse_follows,
@@ -64,8 +69,6 @@ class WeibocnSpider(Spider):
             for follow in follows:
                 if follow.get('user'):
                     uid = follow.get('user').get('id')
-                    if user_info['followers_count'] > 20000:
-
                     yield Request(self.user_url.format(uid=uid), callback=self.parse_user)
             
             uid = response.meta.get('uid')

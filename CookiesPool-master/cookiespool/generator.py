@@ -5,6 +5,8 @@ from cookiespool.config import *
 from cookiespool.db import RedisClient
 from login.weibo.cookies import WeiboCookies
 
+from selenium.webdriver.chrome.options import Options
+
 
 class CookiesGenerator(object):
     def __init__(self, website='default'):
@@ -33,7 +35,11 @@ class CookiesGenerator(object):
             self.browser = webdriver.PhantomJS(desired_capabilities=caps)
             self.browser.set_window_size(1400, 500)
         elif BROWSER_TYPE == 'Chrome':
-            self.browser = webdriver.Chrome()
+            #add
+            chrome_options = Options()
+            chrome_options.add_argument("--headless")       # define headless
+            self.browser = webdriver.Chrome(chrome_options=chrome_options)
+            #self.browser = webdriver.Chrome()
     
     def new_cookies(self, username, password):
         """
@@ -61,13 +67,14 @@ class CookiesGenerator(object):
         :return:
         """
         accounts_usernames = self.accounts_db.usernames()
-        cookies_usernames = self.cookies_db.usernames()
+        cookies_usernames = self.cookies_db.usernames()            
         
         for username in accounts_usernames:
             if not username in cookies_usernames:
                 password = self.accounts_db.get(username)
                 print('正在生成Cookies', '账号', username, '密码', password)
                 result = self.new_cookies(username, password)
+                #print ('returned from new_cookies')
                 # 成功获取
                 if result.get('status') == 1:
                     cookies = self.process_cookies(result.get('content'))

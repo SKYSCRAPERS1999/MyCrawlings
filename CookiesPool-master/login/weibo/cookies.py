@@ -53,7 +53,9 @@ class WeiboCookies():
         """
         try:
             return bool(
-                WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.CLASS_NAME, 'drop-title'))))
+                WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.XPATH, "//div[@class='lite-topbar main-top']"))))
+            #return bool(
+            #    WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.CLASS_NAME, 'drop-title'))))
         except TimeoutException:
             return False
     
@@ -197,7 +199,9 @@ class WeiboCookies():
         破解入口
         :return:
         """
+        #print ('we get here')
         self.open()
+        #print ('we get there')
         if self.password_error():
             return {
                 'status': 2,
@@ -210,6 +214,7 @@ class WeiboCookies():
                 'status': 1,
                 'content': cookies
             }
+        print ('may be wrong')
         # 获取验证码图片
         image = self.get_image('captcha.png')
         numbers = self.detect_image(image)

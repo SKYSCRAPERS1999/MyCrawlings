@@ -123,7 +123,7 @@ class WeiboCookies():
         :return:
         """
         # 相似度阈值
-        threshold = 0.99
+        threshold = 0.90
         count = 0
         for x in range(image.width):
             for y in range(image.height):

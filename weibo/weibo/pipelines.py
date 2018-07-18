@@ -8,7 +8,7 @@
 import re, time
 import logging
 import pymongo
-from weibo.items import UserItem, UserRelationItem, WeiboItem
+from weibo.items import UserItem, UserRelationItem, WeiboItem, GarbageItem
 
 class TimePipeline():
     def process_item(self, item, spider):
@@ -62,7 +62,8 @@ class MongoPipeline(object):
         self.db = self.client[self.mongo_db]
         self.db[UserItem.collection].create_index([('id', pymongo.ASCENDING)])
         self.db[WeiboItem.collection].create_index([('id', pymongo.ASCENDING)])
-    
+        self.db[GarbageItem.collection].create_index([('id', pymongo.ASCENDING)])
+        
     def close_spider(self, spider):
         self.client.close()
     
@@ -78,4 +79,9 @@ class MongoPipeline(object):
                         'fans': {'$each': item['fans']}
                     }
                 }, True)
+        if isinstance(item, GarbageItem):
+            gids = item.get('gid')
+            for gid in gids:
+                self.db[item.collection].insert({'gid': gid})
+                
         return item

@@ -25,7 +25,7 @@ TEST_URL_MAP = {
 }
 
 # 产生器和验证器循环周期
-CYCLE = 120
+CYCLE = 180
 
 # API地址和端口
 API_HOST = '0.0.0.0'

@@ -30,7 +30,7 @@ ROBOTSTXT_OBEY = False
 DOWNLOAD_DELAY = 0.25
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
-#CONCURRENT_REQUESTS_PER_IP = 16
+CONCURRENT_REQUESTS_PER_IP = 32
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
@@ -60,6 +60,7 @@ DEFAULT_REQUEST_HEADERS = {
 DOWNLOADER_MIDDLEWARES = {
     'weibo.middlewares.CookiesMiddleware': 554,
     'weibo.middlewares.ProxyMiddleware': 555,
+    'weibo.middlewares.RandomUserAgentMiddleware': 556
 }
 
 # Enable or disable extensions
@@ -102,3 +103,6 @@ MONGO_DATABASE = 'weibo'
 COOKIES_URL = 'http://localhost:5000/weibo/random'
 PROXY_URL = 'http://localhost:5555/random'
 RETRY_HTTP_CODES = [401, 403, 408, 414, 500, 502, 503, 504]
+
+#LOG_FILE = 'log.txt'
+LOG_LEVEL = 'INFO'

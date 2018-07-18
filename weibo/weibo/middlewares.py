@@ -8,6 +8,8 @@ import json
 import logging
 from scrapy import signals
 import requests
+import random
+from weibo.user_agents import agents
 
 class ProxyMiddleware():
     def __init__(self, proxy_url):
@@ -66,3 +68,9 @@ class CookiesMiddleware():
         return cls(
             cookies_url=settings.get('COOKIES_URL')
         )
+
+class RandomUserAgentMiddleware(object):
+    """ 换User-Agent """
+    def process_request(self, request, spider):
+        agent = random.choice(agents)
+        request.headers["User-Agent"] = agent

@@ -45,3 +45,7 @@ class WeiboItem(Item):
     user = Field()
     created_at = Field()
     crawled_at = Field()
+
+class GarbageItem(Item):
+    collection = 'garbages'  
+    gid = Field()

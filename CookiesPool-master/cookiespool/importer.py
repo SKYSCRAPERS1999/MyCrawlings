@@ -19,6 +19,9 @@ def scan():
             break
         set(account)
 
-
+def autoscan():
+    for line in open("/home/impulse/Scrapy/card1.txt"):
+        set(line)
+    
 if __name__ == '__main__':
     scan()

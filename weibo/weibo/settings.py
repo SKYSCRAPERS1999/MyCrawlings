@@ -30,7 +30,7 @@ ROBOTSTXT_OBEY = False
 DOWNLOAD_DELAY = 0.25
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
-CONCURRENT_REQUESTS_PER_IP = 32
+#CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
@@ -98,11 +98,19 @@ ITEM_PIPELINES = {
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-MONGO_URI = 'localhost'
+#MONGO_URI = 'localhost'
+#MONGO_DATABASE = 'weibo'
+#COOKIES_URL = 'http://localhost:5000/weibo/random'
+#PROXY_URL = 'http://localhost:5555/random'
+MONGO_URI = '120.79.139.239'
 MONGO_DATABASE = 'weibo'
-COOKIES_URL = 'http://localhost:5000/weibo/random'
-PROXY_URL = 'http://localhost:5555/random'
+COOKIES_URL = 'http://120.79.139.239:5000/weibo/random'
+PROXY_URL = 'http://120.79.139.239:5555/random'
 RETRY_HTTP_CODES = [401, 403, 408, 414, 500, 502, 503, 504]
 
 #LOG_FILE = 'log.txt'
 LOG_LEVEL = 'INFO'
+
+DEPTH_PRIORITY = 3
+SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleFifoDiskQueue'
+SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.FifoMemoryQueue'

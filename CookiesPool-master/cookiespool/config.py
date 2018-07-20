@@ -8,7 +8,8 @@ REDIS_PORT = 6379
 REDIS_PASSWORD = 'foobared'
 
 # 产生器使用的浏览器
-BROWSER_TYPE = 'Chrome'
+#BROWSER_TYPE = 'Chrome'
+BROWSER_TYPE = 'PhantomJS'
 
 # 产生器类，如扩展其他站点，请在此配置
 GENERATOR_MAP = {

@@ -46,6 +46,10 @@ class WeiboItem(Item):
     created_at = Field()
     crawled_at = Field()
 
-class GarbageItem(Item):
-    collection = 'garbages'  
-    gid = Field()
+class OngoingItem(Item):
+    collection = 'ongoings'  
+    oid = Field()
+    
+class FinishItem(Item):
+    collection = 'finishes'  
+    fid = Field()

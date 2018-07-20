@@ -31,15 +31,16 @@ class Crawler(object, metaclass=ProxyMetaclass):
     #         urls = html.split('\n')
     #         for url in urls:
     #             yield url
-    def crawl_xdaili(self):
+    
+    #def crawl_xdaili(self):
         ## xundaili
-        url = 'http://api.xdaili.cn/xdaili-api//greatRecharge/getGreatIp?spiderId=1d2e6503052d498abf2dbf122907e99c&orderno=YZ20187177535ZwNaFu&returnType=2&count=20'
-        html = get_page(url)
-        if html:
-            result = json.loads(html)
-            proxies = result.get('RESULT')
-            for proxy in proxies:
-                yield proxy.get('ip') + ':' + proxy.get('port')
+    #    url = 'http://api.xdaili.cn/xdaili-api//greatRecharge/getGreatIp?spiderId=1d2e6503052d498abf2dbf122907e99c&orderno=YZ20187177535ZwNaFu&returnType=2&count=20'
+    #    html = get_page(url)
+    #    if html:
+    #        result = json.loads(html)
+    #        proxies = result.get('RESULT')
+    #        for proxy in proxies:
+    #            yield proxy.get('ip') + ':' + proxy.get('port')
                 
     def crawl_daili66(self, page_count=4):
         """

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from scrapy import Request, Spider
-import json, pymongo
-from weibo_content.items import WeiboItem
+import json, pymongo, time, re
+from weibo_content.items import WeiboItem, TextItem
 
 class WeiboSpider(Spider):
     name = 'weibo'
@@ -16,18 +16,37 @@ class WeiboSpider(Spider):
     spider_client = pymongo.MongoClient(host='localhost', port=27017)
     db = spider_client['weibo']
     collection = db['users']
+    collection_weibo = db['weibos']
     start_users = []
+    text_re = re.compile('"text":[ ]+"(.*)"')
+    
+    date = time.strftime('%Y-%m-%d', time.localtime())
+    ldate = time.strftime('%Y-%m-%d', time.localtime(time.time() - 24 * 60 * 60))
+    lldate = time.strftime('%Y-%m-%d', time.localtime(time.time() - 2 * 24 * 60 * 60))
     
     def start_requests(self):
         
+        time_re = re.compile(str(self.date)+'|'+str(self.ldate)+'|'+str(self.lldate))
+        deletes = self.collection_weibo.find({'created_date': {'$not': time_re}})
+        if deletes.count() == 0 and self.collection_weibo.count() > 1000:
+            self.logger.critical("Nothing to parse")
+            return
+        else:
+            del_id = []
+            for dele in deletes:
+                if dele.get('id') != None:
+                    del_id.append(dele.get('id'))
+            for id in del_id:
+                self.collection.delete_one({'id': id})
+                    
         results = self.collection.find({}, {'id':1})  
         for result in results:
             if result['id'] != None:
                 self.start_users.append(str(result['id']))
-        self.logger.info('length of start_users: {}'.format(len(self.start_users)))
+        self.logger.critical('length of start_users: {}'.format(len(self.start_users)))
         
         for cnt, uid in enumerate(self.start_users):
-            self.logger.info('parsing the {}th user: {}'.format(cnt, uid))
+            self.logger.critical('parsing the {}th user: {}'.format(cnt, uid))
             yield Request(self.weibo_url.format(uid=uid, page=1), callback=self.parse_weibos,
                           meta={'page': 1, 'uid': uid})                
     
@@ -63,10 +82,38 @@ class WeiboSpider(Spider):
                         if retweet.get('text') != None:
                             weibo_item['text'] += retweet.get('text')
                     weibo_item['user'] = response.meta.get('uid')
+                    
                     yield weibo_item
                     
+                    if weibo.get('scheme') != None:
+                        if len(str(weibo_item['text'])) >= 135 and re.search('全文', weibo_item['text']) != None:
+                            yield Request(weibo.get('scheme'), callback=self.parse_fulltext,
+                              meta={'id': weibo_item['id']})                       
+                    
             # 下一页微博
-            #uid = response.meta.get('uid')
-            #page = response.meta.get('page') + 1
-            #yield Request(self.weibo_url.format(uid=uid, page=page), callback=self.parse_weibos,
-            #              meta={'uid': uid, 'page': page})
+            uid = response.meta.get('uid')
+            page = response.meta.get('page') + 1
+            if (page > 2):
+                return
+            else:
+                yield Request(self.weibo_url.format(uid=uid, page=page), callback=self.parse_weibos,
+                          meta={'uid': uid, 'page': page})
+            
+    def parse_fulltext(self, response):
+        self.logger.critical("getting fulltext\n")
+        
+        fulltext_item = TextItem()
+        fulltext_item['id'] = response.meta.get('id')
+        elements = response.xpath(".").re(self.text_re)
+        fulltext = ""
+        for element in elements:
+            fulltext += element 
+        fulltext_item['full_text'] = fulltext
+        
+        if len(fulltext) < 10:
+            return
+        #self.logger.critical('full_text: {}'.format(fulltext))
+        self.logger.critical('isinstance fulltext? : {} is valid?: {}'.format(isinstance(fulltext_item, TextItem), fulltext != None))
+    
+        yield fulltext_item    
+            

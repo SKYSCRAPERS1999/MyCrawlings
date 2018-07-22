@@ -34,9 +34,15 @@ class WeiboItem(Item):
     pictures = Field()
     source = Field()
     text = Field()
+    #full_text = Field()
     raw_text = Field()
     thumbnail = Field()
     user = Field()
     created_at = Field()
     created_date = Field()
     crawled_at = Field()
+
+class TextItem(Item):
+    collection = 'weibos'  
+    id = Field()
+    full_text = Field()

@@ -8,14 +8,15 @@
 import re, time
 import logging
 import pymongo
-from weibo_content.items import UserItem, WeiboItem
+from weibo_content.items import UserItem, WeiboItem, TextItem
 from scrapy.exceptions import DropItem
 
 class TimePipeline():
     def process_item(self, item, spider):
         ## must be WeiboItem
-        now = time.strftime('%Y-%m-%d %H:%M', time.localtime())
-        item['crawled_at'] = now
+        if isinstance(item, WeiboItem):
+            now = time.strftime('%Y-%m-%d %H:%M', time.localtime())
+            item['crawled_at'] = now
         return item
 
 class WeiboPipeline():
@@ -37,13 +38,14 @@ class WeiboPipeline():
     
     def process_item(self, item, spider):
         ## must be WeiboItem 
-        if item.get('created_at'):
-            item['created_at'] = item['created_at'].strip()
-            item['created_at'] = self.parse_time(item.get('created_at'))
-            if item['created_at'].split() != None:
-                item['created_date'] = item['created_at'].split()[0]
-        if item.get('pictures'):
-            item['pictures'] = [pic.get('url') for pic in item.get('pictures')]
+        if isinstance(item, WeiboItem):
+            if item.get('created_at'):
+                item['created_at'] = item['created_at'].strip()
+                item['created_at'] = self.parse_time(item.get('created_at'))
+                if item['created_at'].split() != None:
+                    item['created_date'] = item['created_at'].split()[0]
+            if item.get('pictures'):
+                item['pictures'] = [pic.get('url') for pic in item.get('pictures')]
         return item
 
 
@@ -72,8 +74,13 @@ class MongoPipeline(object):
     
     def process_item(self, item, spider):
         ## must be WeiboItem
-        if str(item['created_date']) in [str(self.date), str(self.ldate), str(self.lldate)]:
-            self.db[item.collection].update({'id': item.get('id')}, {'$set': item}, True)            
-            return item
-        else:
-            raise DropItem('Date not match')
+        if isinstance(item, TextItem):
+            #self.logger.info("Setting full text, id = {}".format(item.get('id')))
+            self.db[item.collection].update({'id': item.get('id')}, {'$set': {'full_text': item['full_text']} }, False)
+        elif isinstance(item, WeiboItem):
+            if str(item['created_date']) in [str(self.date), str(self.ldate), str(self.lldate)]:
+                self.db[item.collection].update({'id': item.get('id')}, {'$set': item}, True)            
+            else:
+                raise DropItem('Date not match')
+        return item
+       

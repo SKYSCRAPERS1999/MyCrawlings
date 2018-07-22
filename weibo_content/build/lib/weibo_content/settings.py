@@ -105,7 +105,7 @@ PROXY_URL = 'http://localhost:5555/random'
 RETRY_HTTP_CODES = [401, 403, 408, 414, 500, 502, 503, 504]
 
 #LOG_FILE = 'log.txt'
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = 'ERROR'
 
 DEPTH_PRIORITY = 0
 SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleFifoDiskQueue'

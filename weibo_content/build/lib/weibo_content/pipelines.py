@@ -9,6 +9,7 @@ import re, time
 import logging
 import pymongo
 from weibo_content.items import UserItem, WeiboItem
+from scrapy.exceptions import DropItem
 
 class TimePipeline():
     def process_item(self, item, spider):
@@ -50,7 +51,10 @@ class MongoPipeline(object):
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
-    
+        self.date = time.strftime('%Y-%m-%d', time.localtime())
+        self.ldate = time.strftime('%Y-%m-%d', time.localtime(time.time() - 24 * 60 * 60))
+        self.lldate = time.strftime('%Y-%m-%d', time.localtime(time.time() - 2 * 24 * 60 * 60))
+        
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
@@ -68,5 +72,8 @@ class MongoPipeline(object):
     
     def process_item(self, item, spider):
         ## must be WeiboItem
-        self.db[item.collection].update({'id': item.get('id')}, {'$set': item}, True)
-        return item
+        if str(item['created_date']) in [str(self.date), str(self.ldate), str(self.lldate)]:
+            self.db[item.collection].update({'id': item.get('id')}, {'$set': item}, True)            
+            return item
+        else:
+            raise DropItem('Date not match')

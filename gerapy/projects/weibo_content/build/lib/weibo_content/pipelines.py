@@ -78,7 +78,7 @@ class MongoPipeline(object):
             #self.logger.info("Setting full text, id = {}".format(item.get('id')))
             self.db[item.collection].update({'id': item.get('id')}, {'$set': {'full_text': item['full_text']} }, False)
         elif isinstance(item, WeiboItem):
-            if str(item['created_date']) in [str(self.date), str(self.ldate)]:
+            if str(item['created_date']) in [str(self.date), str(self.ldate), str(self.lldate)]:
                 self.db[item.collection].update({'id': item.get('id')}, {'$set': item}, True)            
             else:
                 raise DropItem('Date not match')

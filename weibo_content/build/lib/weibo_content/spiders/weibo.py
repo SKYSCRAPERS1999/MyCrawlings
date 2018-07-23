@@ -18,7 +18,8 @@ class WeiboSpider(Spider):
     collection = db['users']
     collection_weibo = db['weibos']
     start_users = []
-    text_re = re.compile('"text":[ ]+"(.*)"')
+    text_re1 = re.compile('"text":[ ]+"(.*)"')
+    text_re2 = re.compile('"longTextContent":[ ]+"(.*)"')
     
     date = time.strftime('%Y-%m-%d', time.localtime())
     ldate = time.strftime('%Y-%m-%d', time.localtime(time.time() - 24 * 60 * 60))
@@ -26,7 +27,7 @@ class WeiboSpider(Spider):
     
     def start_requests(self):
         
-        time_re = re.compile(str(self.date)+'|'+str(self.ldate)+'|'+str(self.lldate))
+        time_re = re.compile(str(self.date)+'|'+str(self.ldate))
         deletes = self.collection_weibo.find({'created_date': {'$not': time_re}})
         if deletes.count() == 0 and self.collection_weibo.count() > 1000:
             self.logger.critical("Nothing to parse")
@@ -56,24 +57,17 @@ class WeiboSpider(Spider):
         :param response: Response对象
         """
         result = json.loads(response.text)
-        parse_cnt = 0
         
         if result.get('ok') and result.get('data').get('cards'):
             weibos = result.get('data').get('cards')
             for weibo in weibos:
-                
-                parse_cnt += 1
-                if (parse_cnt > 10):
-                    return
                     
                 mblog = weibo.get('mblog')
                 if mblog:
                     weibo_item = WeiboItem()
                     field_map = {
                         'id': 'id', 'attitudes_count': 'attitudes_count', 'comments_count': 'comments_count',
-                        'reposts_count': 'reposts_count', 'picture': 'original_pic', 'pictures': 'pics',
-                        'created_at': 'created_at', 'source': 'source', 'text': 'text', 'raw_text': 'raw_text',
-                        'thumbnail': 'thumbnail_pic'
+                        'reposts_count': 'reposts_count', 'created_at': 'created_at', 'source': 'source', 'text': 'text'
                     }
                     for field, attr in field_map.items():
                         weibo_item[field] = mblog.get(attr)
@@ -104,10 +98,17 @@ class WeiboSpider(Spider):
         
         fulltext_item = TextItem()
         fulltext_item['id'] = response.meta.get('id')
-        elements = response.xpath(".").re(self.text_re)
+        elements = response.xpath(".").re(self.text_re1)
+        extra_element = response.xpath(".").re(self.text_re2)
         fulltext = ""
-        for element in elements:
-            fulltext += element 
+        if len(elements) > 0:
+            fulltext += elements[0]
+        
+        if len(extra_element) > 0:
+            fulltext += extra_element[0]
+        elif len(elements) > 1:
+            fulltext += elements[1]
+            
         fulltext_item['full_text'] = fulltext
         
         if len(fulltext) < 10:

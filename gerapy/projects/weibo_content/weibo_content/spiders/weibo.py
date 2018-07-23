@@ -57,10 +57,15 @@ class WeiboSpider(Spider):
         :param response: Response对象
         """
         result = json.loads(response.text)
+        parse_cnt = 0
         
         if result.get('ok') and result.get('data').get('cards'):
             weibos = result.get('data').get('cards')
             for weibo in weibos:
+                
+                parse_cnt += 1
+                if (parse_cnt > 10):
+                    return
                     
                 mblog = weibo.get('mblog')
                 if mblog:
@@ -85,13 +90,13 @@ class WeiboSpider(Spider):
                               meta={'id': weibo_item['id']})                       
                     
             # 下一页微博
-            uid = response.meta.get('uid')
-            page = response.meta.get('page') + 1
-            if (page > 2):
-                return
-            else:
-                yield Request(self.weibo_url.format(uid=uid, page=page), callback=self.parse_weibos,
-                          meta={'uid': uid, 'page': page})
+            #uid = response.meta.get('uid')
+            #page = response.meta.get('page') + 1
+            #if (page > 2):
+            #    return
+            #else:
+            #    yield Request(self.weibo_url.format(uid=uid, page=page), callback=self.parse_weibos,
+            #              meta={'uid': uid, 'page': page})
             
     def parse_fulltext(self, response):
         self.logger.critical("getting fulltext\n")

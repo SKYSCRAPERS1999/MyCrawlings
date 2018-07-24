@@ -46,3 +46,4 @@ class TextItem(Item):
     collection = 'weibos'  
     id = Field()
     full_text = Field()
+

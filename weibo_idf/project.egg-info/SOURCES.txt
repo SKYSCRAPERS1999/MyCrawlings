@@ -1,0 +1,14 @@
+setup.py
+project.egg-info/PKG-INFO
+project.egg-info/SOURCES.txt
+project.egg-info/dependency_links.txt
+project.egg-info/entry_points.txt
+project.egg-info/top_level.txt
+weibo_idf/__init__.py
+weibo_idf/items.py
+weibo_idf/middlewares.py
+weibo_idf/pipelines.py
+weibo_idf/settings.py
+weibo_idf/user_agent.py
+weibo_idf/spiders/__init__.py
+weibo_idf/spiders/weibo.py

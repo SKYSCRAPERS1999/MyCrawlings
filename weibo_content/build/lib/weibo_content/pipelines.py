@@ -10,6 +10,7 @@ import logging
 import pymongo
 from weibo_content.items import UserItem, WeiboItem, TextItem
 from scrapy.exceptions import DropItem
+from weibo_content.spiders.weibo import week
 
 class TimePipeline():
     def process_item(self, item, spider):
@@ -78,9 +79,10 @@ class MongoPipeline(object):
             #self.logger.info("Setting full text, id = {}".format(item.get('id')))
             self.db[item.collection].update({'id': item.get('id')}, {'$set': {'full_text': item['full_text']} }, False)
         elif isinstance(item, WeiboItem):
-            if str(item['created_date']) in [str(self.date), str(self.ldate)]:
+            if str(item['created_date']) in week:
                 self.db[item.collection].update({'id': item.get('id')}, {'$set': item}, True)            
             else:
                 raise DropItem('Date not match')
         return item
        
+

@@ -3,6 +3,8 @@ from scrapy import Request, Spider
 import json, pymongo, time, re
 from weibo_content.items import WeiboItem, TextItem
 
+week = [ time.strftime('%Y-%m-%d', time.localtime(time.time() - x * 24 * 60 * 60)) for x in range(7) ]
+
 class WeiboSpider(Spider):
     name = 'weibo'
     allowed_domains = ['weibo.cn']
@@ -21,30 +23,29 @@ class WeiboSpider(Spider):
     text_re1 = re.compile('"text":[ ]+"(.*)"')
     text_re2 = re.compile('"longTextContent":[ ]+"(.*)"')
     
-    date = time.strftime('%Y-%m-%d', time.localtime())
-    ldate = time.strftime('%Y-%m-%d', time.localtime(time.time() - 24 * 60 * 60))
-    lldate = time.strftime('%Y-%m-%d', time.localtime(time.time() - 2 * 24 * 60 * 60))
+    #date = time.strftime('%Y-%m-%d', time.localtime())
+    #ldate = time.strftime('%Y-%m-%d', time.localtime(time.time() - 24 * 60 * 60))
+    #lldate = time.strftime('%Y-%m-%d', time.localtime(time.time() - 2 * 24 * 60 * 60))
     
     def start_requests(self):
         
-        time_re = re.compile(str(self.date)+'|'+str(self.ldate))
+        time_re = re.compile('|'.join(week))
         deletes = self.collection_weibo.find({'created_date': {'$not': time_re}})
-        if deletes.count() == 0 and self.collection_weibo.count() > 1000:
-            self.logger.critical("Nothing to parse")
-            return
-        else:
-            del_id = []
-            for dele in deletes:
-                if dele.get('id') != None:
-                    del_id.append(dele.get('id'))
-            for id in del_id:
-                self.collection.delete_one({'id': id})
+        
+        del_id = []
+        for dele in deletes:
+            if dele.get('id') != None:
+                del_id.append(dele.get('id'))
+        for id in del_id:
+            self.collection.delete_one({'id': id})
                     
         results = self.collection.find({}, {'id':1})  
         for result in results:
             if result['id'] != None:
                 self.start_users.append(str(result['id']))
         self.logger.critical('length of start_users: {}'.format(len(self.start_users)))
+
+        self.spider_client.close()
         
         for cnt, uid in enumerate(self.start_users):
             self.logger.critical('parsing the {}th user: {}'.format(cnt, uid))
@@ -57,7 +58,8 @@ class WeiboSpider(Spider):
         :param response: Response对象
         """
         result = json.loads(response.text)
-        
+        uid = response.meta.get('uid')
+
         if result.get('ok') and result.get('data').get('cards'):
             weibos = result.get('data').get('cards')
             for weibo in weibos:
@@ -84,13 +86,13 @@ class WeiboSpider(Spider):
                             yield Request(weibo.get('scheme'), callback=self.parse_fulltext,
                               meta={'id': weibo_item['id']})                       
                     
+                    if weibo_item.get('created_at') != None and weibo_item.get('created_at') not in week:
+                        self.logger.critical('finish parsing user {}'.format(uid))
+                        return
+                    
             # 下一页微博
-            uid = response.meta.get('uid')
             page = response.meta.get('page') + 1
-            if (page > 2):
-                return
-            else:
-                yield Request(self.weibo_url.format(uid=uid, page=page), callback=self.parse_weibos,
+            yield Request(self.weibo_url.format(uid=uid, page=page), callback=self.parse_weibos,
                           meta={'uid': uid, 'page': page})
             
     def parse_fulltext(self, response):

@@ -37,7 +37,7 @@ class WeiboSpider(Spider):
             if dele.get('id') != None:
                 del_id.append(dele.get('id'))
         for id in del_id:
-            self.collection.delete_one({'id': id})
+            self.collection.delete_one({'id': str(id)})
                     
         results = self.collection.find({}, {'id':1})  
         for result in results:
@@ -86,7 +86,7 @@ class WeiboSpider(Spider):
                             yield Request(weibo.get('scheme'), callback=self.parse_fulltext,
                               meta={'id': weibo_item['id']})                       
                     
-                    if weibo_item.get('created_at') != None and weibo_item.get('created_at') not in week:
+                    if weibo_item.get('created_date') != None and weibo_item.get('created_date') not in week:
                         self.logger.critical('finish parsing user {}'.format(uid))
                         return
                     

@@ -86,7 +86,7 @@ class WeiboSpider(Spider):
                             yield Request(weibo.get('scheme'), callback=self.parse_fulltext,
                               meta={'id': weibo_item['id']})                       
                     
-                    if weibo_item.get('created_at') != None and weibo_item.get('created_at') not in week:
+                    if weibo_item.get('created_date') != None and weibo_item.get('created_date') not in week:
                         self.logger.critical('finish parsing user {}'.format(uid))
                         return
                     

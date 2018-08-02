@@ -5,8 +5,13 @@ import pymongo, re, jieba, requests, time, json, math
 import jieba.posseg as postag
 import pandas as pd
 
+mongo_uri = 'mongodb://impulse:njuacmicpc@120.79.139.239/weibo'
+
 def get_data():
-    client = pymongo.MongoClient(host='120.79.139.239', port=27017)
+    
+    print ('In {}, begin, date is {}'.format(get_data.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
+    client = pymongo.MongoClient(host=mongo_uri, port=27017)
     db = client['weibo']
     collection = db['weibos']
     results = collection.find({}, {'id':1,'user':1,'attitudes_count':1,'comments_count':1,'reposts_count':1,'text':1,'full_text':1})
@@ -22,9 +27,16 @@ def get_data():
         print ('In {}: data loaded, len {}'.format(get_data.__name__, len(data)))
     else:
         print ('In {}: some errors occur'.format(get_data.__name__))        
+    
+    client.close()
+    print ('In {}, end, date is {}'.format(get_data.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+    
     return data
 
 def prettify_text(data, output=True):
+    
+    print ('In {}, begin, date is {}'.format(prettify_text.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     texts = []
     for cnt, text in enumerate(data.text):
         text = re.sub('<.*?>', '', text)
@@ -32,14 +44,19 @@ def prettify_text(data, output=True):
         texts.append(text)
         if cnt % 1000 == 0 and output == True:
             print ('In {}: cnt = {}'.format(prettify_text.__name__, cnt))
-            
+
+    print ('In {}, end, date is {}'.format(prettify_text.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+           
     if len(texts) == len(data):
         return pd.Series(texts)
     else:
         print ('In {}: not the same length'.format(prettify_text.__name__))
         return None
 
-def read_stop_words(): 
+def read_stop_words():
+    
+    print ('In {}, begin, date is {}'.format(read_stop_words.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     stop_words = []
     stop_letters = []
     with open('stop_words.txt') as sp:
@@ -50,9 +67,15 @@ def read_stop_words():
             stop_letters.append(x[:-1])
     stop_words = set(stop_words)
     re_stop_letter = re.compile('|'.join(stop_letters))
+    
+    print ('In {}, end, date is {}'.format(read_stop_words.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     return (stop_words, re_stop_letter)
 
 def get_clean_text(data, output=True):
+    
+    print ('In {}, begin, date is {}'.format(get_clean_text.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     texts = []
     for cnt, raw in enumerate(data.text):
         del_name = re.findall('@([^ |<|:|\(|\)|\\|\/|<|>|\[|\]]+)', raw)
@@ -64,7 +87,9 @@ def get_clean_text(data, output=True):
         
         if cnt % 1000 == 0 and output == True:
             print ('In {}: cnt = {}'.format(get_clean_text.__name__, cnt))
-            
+    
+    print ('In {}, end, date is {}'.format(get_clean_text.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+        
     if len(texts) == len(data):
         return pd.Series(texts)
     else:
@@ -72,6 +97,9 @@ def get_clean_text(data, output=True):
         return None
 
 def get_words(data, re_stop_letter, stop_words, output=True):
+    
+    print ('In {}, begin, date is {}'.format(get_words.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     words = []
     for cnt, raw in enumerate(data.c_text):
         result = postag.cut(raw)
@@ -80,6 +108,8 @@ def get_words(data, re_stop_letter, stop_words, output=True):
         
         if cnt % 1000 == 0 and output == True:
             print ('In {}: cnt = {}'.format(get_words.__name__, cnt))
+    
+    print ('In {}, end, date is {}'.format(get_words.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
             
     return pd.Series(words)
 
@@ -94,6 +124,9 @@ def get_word_count(lst):
 
 # # sentiments
 def get_sentiment(data, output=True):
+    
+    print ('In {}, begin, date is {}'.format(get_sentiment.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     headers = {'Content-Type': 'application/json'}
     params = {'access_token': '24.cb5b8cccad6a49c21d4cccd1a047f9ae.2592000.1534940191.282335-11569351'}
     positive_prob = []
@@ -142,6 +175,8 @@ def get_sentiment(data, output=True):
     if len(data) != len(positive_prob):
         print ('In {}: length not equal'.format(get_sentiment.__name__))
         
+    print ('In {}, end, date is {}'.format(get_sentiment.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     return pd.Series(positive_prob)
 
 is_float = lambda x: x.replace('.','',1).isdigit() and "." in x
@@ -149,7 +184,7 @@ is_float = lambda x: x.replace('.','',1).isdigit() and "." in x
 def run():
     
     #dependence: jieba_dict_companys, stop_words.txt, stop_letters.txt
-    print ('In {}, date is {}'.format(run.__name__, time.strftime('%Y-%m-%d', time.localtime(time.time()))))
+    print ('In {}, begin, date is {}'.format(run.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
     jieba.load_userdict('jieba_dict_companys')
     stop_words, re_stop_letter = read_stop_words()
@@ -187,7 +222,9 @@ def run():
     print ('In {}: data written'.format(run.__name__))
     
     print ('In {}: Writing Mongodb now'.format(run.__name__))
-    client = pymongo.MongoClient(host='120.79.139.239', port=27017)
+    
+    client = pymongo.MongoClient(host=mongo_uri, port=27017)
+    
     db = client['weibo']
     collection = db['weibos']
     print ('In {}: Writing Mongodb Senti now'.format(run.__name__))
@@ -198,6 +235,8 @@ def run():
         collection.update({'id':str(x[0])}, {'$set': {'level':int(x[1])} })
     client.close()
     print ('In {}: Mongodb written'.format(run.__name__))
+
+    print ('In {}, end, date is {}'.format(run.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
 if __name__ == '__main__':
     run()

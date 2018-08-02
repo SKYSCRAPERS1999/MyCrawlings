@@ -41,6 +41,9 @@ def tpok(word):
     return True
 
 def get_data_dict(data):
+    
+    print ('In {}, begin, date is {}'.format(get_data_dict.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+    
     data_dict_all = {}
     for dic in data.dict:
         for k, v in eval(dic).items():
@@ -65,9 +68,14 @@ def get_data_dict(data):
     data_dict_all = dict(sorted(data_dict_all.items(), key=lambda x: math.sqrt(len(x[0]))*x[1], reverse=True))
     data_dict_all = dict([(x,y) for x,y in data_dict_all.items() if y > 3]) #remove rare witnesses
     
+    print ('In {}, end, date is {}'.format(get_data_dict.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     return data_dict_all
 
 def get_clean_word_list(data, data_dict_all):
+    
+    print ('In {}, begin, date is {}'.format(get_clean_word_list.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     data_words_list_clean = []
     for dic in data.dict:
         data_words_clean = {}
@@ -75,10 +83,15 @@ def get_clean_word_list(data, data_dict_all):
             if k in data_dict_all:
                 data_words_clean[k] = v
         data_words_list_clean.append(data_words_clean)
+
+    print ('In {}, end, date is {}'.format(get_clean_word_list.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+    
     return data_words_list_clean
 
 # ### have dict for each, get dict for all
 def get_data_idf_dict(data_idf_dict):
+
+    print ('In {}, begin, date is {}'.format(get_data_idf_dict.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
     data_idf_dict_all = {}
     for dic in data_idf_dict:
@@ -103,12 +116,16 @@ def get_data_idf_dict(data_idf_dict):
     data_idf_dict_all = dict(sorted(data_idf_dict_all.items(), key=lambda x: math.sqrt(len(x[0]))*x[1], reverse=True))
     data_idf_dict_all = dict([(x,y) for x,y in data_idf_dict_all.items() if y > 10])
     
+    print ('In {}, end, date is {}'.format(get_data_idf_dict.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+    
     return data_idf_dict_all
 
 # ### work idf
 # ### 关键词
 def output_tf(data_dict_all, collection, day):
     # only tf for all
+    print ('In {}, begin, date is {}'.format(output_tf.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     print("Top words in all documents")
     all_scores = { word: tf(word, data_dict_all) for word in data_dict_all}
     all_sorted_words = sorted(all_scores.items(), key=lambda x: math.sqrt(len(x[0]))*x[1], reverse=True)
@@ -118,9 +135,14 @@ def output_tf(data_dict_all, collection, day):
     for word, score in all_sorted_words[:500]:
         print("\tWord: {}, TF: {}".format(word, round(score, 5))) 
         collection.insert_one({'word':word, 'tf': round(score, 5), 'created_date': str(day)})
-        
+    
+    print ('In {}, end, date is {}'.format(output_tf.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+    
 # tf-idf for all
 def output_tf_idf(data_dict_all, data_idf_dict_all, collection, day):
+    
+    print ('In {}, begin, date is {}'.format(output_tf_idf.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     print("Top words in all documents")
     all_scores = { word : tfidf(word, data_dict_all, data_idf_dict_all)
                          for word in data_dict_all }
@@ -131,9 +153,14 @@ def output_tf_idf(data_dict_all, data_idf_dict_all, collection, day):
     for word, score in all_sorted_words[:500]:
         print("\tWord: {}, TF-IDF: {}".format(word, round(score, 5))) 
         collection.insert_one({'word':word, 'tfidf': round(score, 5), 'created_date': str(day)})
-       
+    
+    print ('In {}, end, date is {}'.format(output_tf_idf.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+    
 # tf-idf for each
 def get_critical_words(data, data_idf_dict):
+    
+    print ('In {}, begin, date is {}'.format(get_critical_words.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     critical_words = []
     for i, count in enumerate(data.dict):
         #print("Top words in document {}".format(i))
@@ -146,9 +173,15 @@ def get_critical_words(data, data_idf_dict):
         critical_words.append(critical_word)
         if i % 1000 == 0:
             print ('In {}: cnt = {}'.format(get_critical_words.__name__, i))
-    return critical_words
 
+    print ('In {}, end, date is {}'.format(get_critical_words.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
+    return critical_words
+    
 def get_word_senti(data):
+    
+    print ('In {}, begin, date is {}'.format(get_word_senti.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     word_senti = {}
     for sen, cri_word in zip(data.senti, data.critical_word):
         #print(sen)
@@ -166,16 +199,24 @@ def get_word_senti(data):
                     word_senti[w] -= 1
                 else:
                     word_senti[w] = -1
+    
+    print ('In {}, end, date is {}'.format(get_word_senti.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+    
     return word_senti
-
+    
+    
 # ### 好坏词语
 def output_word_senti(word_senti_posi, word_senti_nega):
+    
+    print ('In {}, begin, date is {}'.format(output_word_senti.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     for x in word_senti_posi:
         print (x)
     for x in word_senti_nega:
         print (x)
         
-
+    print ('In {}, end, date is {}'.format(output_word_senti.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+    
 # ### 词语网络
 class Graph(object):
     def __init__(self, lb):
@@ -189,6 +230,9 @@ class Graph(object):
 
 def output_graph(data, collection, day, lb=3000):
     #init graph
+    
+    print ('In {}, begin, date is {}'.format(output_graph.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     wG = Graph(lb)
     for dic in data.dict:
         for x in dic.keys():
@@ -245,17 +289,23 @@ def output_graph(data, collection, day, lb=3000):
         if len(x) == 2 and len(x[0]) and len(x[1]):
             collection.insert_one({'vertex':x[0], 'adjacent-list': x[1], 'created_date':str(day)})
 
-
+    print ('In {}, end, date is {}'.format(output_graph.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+    
 # ### Top weibos
 def output_hot_text(data, num=150):
+    
+    print ('In {}, begin, date is {}'.format(output_hot_text.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
     num = min(num, len(data) - 1)
     hottest_data = data.sort_values(by='level', axis=0, ascending=False)[:num]
     print (hottest_data.get(['level', 'text']))
     
+    print ('In {}, end, date is {}'.format(output_hot_text.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
 def run():
     #dependence: ../ScrapyDatas/weibo_test_data.csv, ../ScrapyDatas/weibo_idf_dict.csv
     #dependence: SnowNLP
-    print ('In {}, date is {}'.format(run.__name__, time.strftime('%Y-%m-%d', time.localtime(time.time()))))
+    print ('In {}, begin, date is {}'.format(run.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
     
     pd.set_option('display.max_columns', None)
     pd.set_option('display.max_rows', 2000)
@@ -277,7 +327,8 @@ def run():
     data_idf_dict_all = get_data_idf_dict(data_idf_dict)
     
     ##open Mongodb
-    client = pymongo.MongoClient(host='120.79.139.239', port=27017)
+    mongo_uri = 'mongodb://impulse:njuacmicpc@120.79.139.239/weibo'
+    client = pymongo.MongoClient(host=mongo_uri, port=27017)
     db = client['weibo']
     collection_tf = db['word_tf']
     collection_tfidf = db['word_tfidf']
@@ -322,5 +373,7 @@ def run():
     
     client.close()    
     
+    print ('In {}, end, date is {}'.format(run.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
 if __name__ == '__main__':
     run()

@@ -3,7 +3,7 @@ from scrapy import Request, Spider
 import json, pymongo, time, re
 from weibo_content.items import WeiboItem, TextItem
 
-week = [ time.strftime('%Y-%m-%d', time.localtime(time.time() - x * 24 * 60 * 60)) for x in range(7) ]
+week = [ time.strftime('%Y-%m-%d', time.localtime(time.time() - x * 24 * 60 * 60)) for x in range(8) ]
 
 class WeiboSpider(Spider):
     name = 'weibo'
@@ -15,7 +15,9 @@ class WeiboSpider(Spider):
     fan_url = 'https://m.weibo.cn/api/container/getIndex?containerid=231051_-_fans_-_{uid}&page={page}'
     weibo_url = 'https://m.weibo.cn/api/container/getIndex?uid={uid}&type=uid&page={page}&containerid=107603{uid}'
     
-    spider_client = pymongo.MongoClient(host='localhost', port=27017)
+    mongo_uri = 'mongodb://impulse:njuacmicpc@120.79.139.239/weibo'
+    spider_client = pymongo.MongoClient(host=mongo_uri, port=27017)
+    
     db = spider_client['weibo']
     collection = db['users']
     collection_weibo = db['weibos']
@@ -37,7 +39,7 @@ class WeiboSpider(Spider):
             if dele.get('id') != None:
                 del_id.append(dele.get('id'))
         for id in del_id:
-            self.collection.delete_one({'id': str(id)})
+            self.collection_weibo.delete_one({'id': str(id)})
                     
         results = self.collection.find({}, {'id':1})  
         for result in results:
@@ -119,4 +121,3 @@ class WeiboSpider(Spider):
         self.logger.critical('isinstance fulltext? : {} is valid?: {}'.format(isinstance(fulltext_item, TextItem), fulltext != None))
     
         yield fulltext_item    
-            

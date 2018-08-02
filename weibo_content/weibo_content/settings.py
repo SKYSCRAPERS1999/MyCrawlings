@@ -98,7 +98,8 @@ ITEM_PIPELINES = {
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-MONGO_URI = 'localhost'
+#MONGO_URI = 'localhost'
+MONGO_URI = 'mongodb://impulse:njuacmicpc@120.79.139.239/weibo'
 MONGO_DATABASE = 'weibo'
 COOKIES_URL = 'http://localhost:5000/weibo/random'
 PROXY_URL = 'http://localhost:5555/random'

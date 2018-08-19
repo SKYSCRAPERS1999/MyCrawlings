@@ -1,3 +1,4 @@
+
 ## Mysql Template
 
 ## Test Mysql
@@ -586,6 +587,7 @@ def get_nyj_zhejiang():
     # print (links)
     xpath = '//div[@class="d5"]/span/text()'
     dates = html.xpath(xpath)
+    dates = [ ele.replace('/', '-') for ele in dates]
     # print (dates)
     data_zhejiang = [ (t, l, d, 'zhejiang') for (t, l, d) in zip(titles, links, dates) ]
     
@@ -603,6 +605,7 @@ def get_nyj_zhejiang():
     # print (links)
     xpath = '//div[@class="d5"]/span/text()'
     dates = html.xpath(xpath)
+    dates = [ ele.replace('/', '-') for ele in dates]
     # print (dates)
     data_zhejiang += [ (t, l, d, 'zhejiang') for (t, l, d) in zip(titles, links, dates) ]
     
@@ -1072,7 +1075,7 @@ def get_rmyh_jiangsu():
 #     print (driver.page_source)
     xpath = '//td[@class="art_titjr"]'
     elements = driver.find_elements_by_xpath(xpath)
-    dates = [ele.text.replace(' ', '') for ele in elements]    
+    dates = [ele.text[-11:].replace(' ', '') for ele in elements]
     xpath = '//td[@class="art_titjr"]/a'
     elements = driver.find_elements_by_xpath(xpath)
     links = [ele.get_attribute("href") for ele in elements]

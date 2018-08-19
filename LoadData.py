@@ -78,9 +78,14 @@ def get_clean_text(data, output=True):
 
     texts = []
     for cnt, raw in enumerate(data.text):
-        del_name = re.findall('@([^ |<|:|\(|\)|\\|\/|<|>|\[|\]]+)', raw)
-        for name in del_name:
-            raw = re.sub(name, '', raw)
+        try:
+            del_name = re.findall('@([^ |<|:|\(|\)|\\|\/|<|>|\[|\]]+)', raw)
+            for name in del_name:
+                raw = re.sub(name, '', raw)
+        except Exception as err:
+            print("Error {}".format(err))
+            pass
+        
         raw = re.sub('<br />', '，', raw)
         raw = re.sub('[^\u4e00-\u9fa5|，|!|。]+|\?{1}|:{1}', '', raw)
         texts.append(raw)
@@ -128,7 +133,7 @@ def get_sentiment(data, output=True):
     print ('In {}, begin, date is {}'.format(get_sentiment.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
     headers = {'Content-Type': 'application/json'}
-    params = {'access_token': '24.cb5b8cccad6a49c21d4cccd1a047f9ae.2592000.1534940191.282335-11569351'}
+    params = {'access_token': '24.9ac5bfe09d008481c4dc699f69288ed1.2592000.1537058351.282335-11569351'}
     positive_prob = []
     omit_cnt = 0
     for cnt, (text, senti) in enumerate(zip(data.c_text, data.senti)):

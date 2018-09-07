@@ -6,8 +6,11 @@
 # ## Load weibo_test from csv
 
 import pandas as pd
-import pymongo, math, time, numpy as np
+import pymongo, math, time, re, numpy as np
 from snownlp import SnowNLP
+
+week = [ time.strftime('%Y-%m-%d', time.localtime(time.time() - x * 24 * 60 * 60)) for x in range(8) ]
+time_re = re.compile('|'.join(week))
 
 # ## load idf
 
@@ -40,7 +43,7 @@ def tpok(word):
             return False
     return True
 
-def get_data_dict(data):
+def get_data_dict(data, stop_words):
     
     print ('In {}, begin, date is {}'.format(get_data_dict.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
     
@@ -64,9 +67,9 @@ def get_data_dict(data):
                 else:
                     data_dict_all[tail] = v
                     
-    data_dict_all = dict([ (k, v) for k, v in data_dict_all.items() if tpok(k)])
+    data_dict_all = dict([ (k, v) for k, v in data_dict_all.items() if (tpok(k) or v > 50)])
     data_dict_all = dict(sorted(data_dict_all.items(), key=lambda x: math.sqrt(len(x[0]))*x[1], reverse=True))
-    data_dict_all = dict([(x,y) for x,y in data_dict_all.items() if y > 3]) #remove rare witnesses
+    data_dict_all = dict([(x,y) for x,y in data_dict_all.items() if (y > 3 and x not in stop_words)]) #remove rare witnesses
     
     print ('In {}, end, date is {}'.format(get_data_dict.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
@@ -129,7 +132,15 @@ def output_tf(data_dict_all, collection, day):
     print("Top words in all documents")
     all_scores = { word: tf(word, data_dict_all) for word in data_dict_all}
     all_sorted_words = sorted(all_scores.items(), key=lambda x: math.sqrt(len(x[0]))*x[1], reverse=True)
-    collection.delete_many({})
+    
+    deletes = collection.find({'created_date': {'$not': time_re}})
+    del_id = []
+    for dele in deletes:
+        if dele.get('_id') != None:
+            del_id.append(dele.get('_id'))
+    for id in del_id:
+        collection.delete_one({'_id': id})
+#    collection.delete_many({})
     
     print ('Here1')
     for word, score in all_sorted_words[:500]:
@@ -147,7 +158,15 @@ def output_tf_idf(data_dict_all, data_idf_dict_all, collection, day):
     all_scores = { word : tfidf(word, data_dict_all, data_idf_dict_all)
                          for word in data_dict_all }
     all_sorted_words = sorted(all_scores.items(), key=lambda x: math.sqrt(len(x[0]))*x[1], reverse=True)
-    collection.delete_many({})
+    
+    deletes = collection.find({'created_date': {'$not': time_re}})
+    del_id = []
+    for dele in deletes:
+        if dele.get('_id') != None:
+            del_id.append(dele.get('_id'))
+    for id in del_id:
+        collection.delete_one({'_id': id})
+#    collection.delete_many({})
     
     print ('Here2')
     for word, score in all_sorted_words[:500]:
@@ -167,7 +186,7 @@ def get_critical_words(data, data_idf_dict):
         scores = {word: tfidf(word, count, data_idf_dict) for word in count}
         sorted_words = sorted(scores.items(), key=lambda x: math.sqrt(len(x[0]))*x[1], reverse=True)
         critical_word = []
-        for word, score in sorted_words[:3]:
+        for word, score in sorted_words[:20]:
             critical_word.append(word)
             #print("\tWord: {}, TF-IDF: {}".format(word, round(score, 3))) 
         critical_words.append(critical_word)
@@ -302,6 +321,20 @@ def output_hot_text(data, num=150):
     
     print ('In {}, end, date is {}'.format(output_hot_text.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
+def read_stop_words():
+    
+    print ('In {}, begin, date is {}'.format(read_stop_words.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
+    stop_words = []
+    with open('stop_words.txt') as sp:
+        for x in sp:
+            stop_words.append(x[:-1])
+
+    stop_words = set(stop_words)    
+    print ('In {}, end, date is {}'.format(read_stop_words.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
+    return stop_words
+
 def run():
     #dependence: ../ScrapyDatas/weibo_test_data.csv, ../ScrapyDatas/weibo_idf_dict.csv
     #dependence: SnowNLP
@@ -311,13 +344,14 @@ def run():
     pd.set_option('display.max_rows', 2000)
     pd.set_option('display.max_colwidth',1000)    
     
+    stop_words = read_stop_words()
     data = pd.read_csv('../ScrapyDatas/weibo_test_data.csv')
-    data_dict_all = get_data_dict(data)
+    data_dict_all = get_data_dict(data, stop_words)
     data.dict = get_clean_word_list(data, data_dict_all)
     
     #data_idf_dict = pd.read_csv('../ScrapyDatas/weibo_idf_dict.csv', header=None)
     #data_idf_dict = [ eval(dic) for dic in np.array(data_idf_dict[1]).tolist() ]
-    
+
     data_idf_dict = []
     data_idf_iterator = pd.read_csv('../ScrapyDatas/weibo_idf_dict.csv', chunksize=10000, header=None)
     for data_chunk in data_idf_iterator:
@@ -341,7 +375,7 @@ def run():
     critical_words_list = get_critical_words(data, data_idf_dict)
     data['critical_word'] = critical_words_list
     data.to_csv('../ScrapyDatas/weibo_test_data.csv')
-
+    
     ## Output tf and tf-idfs and write into Mongodb
     print ('In {}: Analyzing tf and writing Mongodb now'.format(run.__name__))
     output_tf(data_dict_all, collection_tf, day)
@@ -356,11 +390,29 @@ def run():
     output_word_senti(word_senti_posi, word_senti_nega)
     
     print ('In {}: Writing good word senti into mongodb'.format(run.__name__))
-    collection_good.delete_many({})
+    
+#    collection_good.delete_many({})
+    deletes = collection_good.find({'created_date': {'$not': time_re}})
+    del_id = []
+    for dele in deletes:
+        if dele.get('_id') != None:
+            del_id.append(dele.get('_id'))
+    for id in del_id:
+        collection_good.delete_one({'_id': id})
+        
     for (word, sen) in word_senti_posi:
         collection_good.insert_one({'word':str(word), 'senti':float(sen), 'created_date':str(day)})
     print ('In {}: Writing bad word senti into mongodb'.format(run.__name__))
-    collection_bad.delete_many({})
+#    collection_bad.delete_many({})
+    
+    deletes = collection_bad.find({'created_date': {'$not': time_re}})
+    del_id = []
+    for dele in deletes:
+        if dele.get('_id') != None:
+            del_id.append(dele.get('_id'))
+    for id in del_id:
+        collection_bad.delete_one({'_id': id})
+        
     for (word, sen) in word_senti_nega:
         collection_bad.insert_one({'word':str(word), 'senti':float(sen), 'created_date':str(day)})
     

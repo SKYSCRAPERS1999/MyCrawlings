@@ -108,7 +108,7 @@ def get_words(data, re_stop_letter, stop_words, output=True):
     words = []
     for cnt, raw in enumerate(data.c_text):
         result = postag.cut(raw)
-        raw = [x.word for x in result if (len(x.word) > 1 and 'n' in x.flag and re.search(re_stop_letter, x.word) == None and x.word not in stop_words)]
+        raw = [x.word for x in result if (len(x.word) > 1 and 'n' in x.flag and re.search(re_stop_letter, x.word) == None and (x.word not in stop_words))]
         words.append(raw)
         
         if cnt % 1000 == 0 and output == True:
@@ -199,6 +199,10 @@ def run():
     data['c_text'] = get_clean_text(data)
     data['words'] = get_words(data=data, re_stop_letter=re_stop_letter, stop_words=stop_words)
     
+    client = pymongo.MongoClient(host=mongo_uri, port=27017)
+    db = client['weibo']
+    collection = db['weibos']
+        
     word_counts = [ get_word_count(lst) for lst in data.words]
     data['dict'] = pd.Series(word_counts)  
     data['level'] = (1 + data.at_cnt) * (1 + data.rep_cnt) * (1 + data.cmt_cnt)
@@ -228,10 +232,10 @@ def run():
     
     print ('In {}: Writing Mongodb now'.format(run.__name__))
     
-    client = pymongo.MongoClient(host=mongo_uri, port=27017)
-    
-    db = client['weibo']
-    collection = db['weibos']
+    print ('In {}: Writing Mongodb Words now'.format(run.__name__))
+    for x in zip(list(data.id), list(data.words)):
+        collection.update({'id':str(x[0])}, {'$set': {'words':list(set(x[1]))} })
+        
     print ('In {}: Writing Mongodb Senti now'.format(run.__name__))
     for x in zip(list(data.id), list(data.senti)):
         collection.update({'id':str(x[0])}, {'$set': {'senti':float(x[1])} })

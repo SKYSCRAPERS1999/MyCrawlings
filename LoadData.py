@@ -143,38 +143,52 @@ def get_sentiment(data, output=True):
             if omit_cnt % 100 == 0:
                 print ('In {}: omit: {}'.format(get_sentiment.__name__, omit_cnt))                
             continue
-        
+            print ("place 1")
         else:
+            if text == None or len(text) <= 2:
+                positive_prob.append(float(-1))
+                continue
+                
             start_time = time.clock()
             post_json = {
                 "text": str(text)[:256]
             }
-    
-            response = requests.post('https://aip.baidubce.com/rpc/2.0/nlp/v1/sentiment_classify',
-                                    params=params, headers=headers, json=post_json)
-            if response.status_code != 200:
-                time.sleep(2.0)
-                print ('status_code = {}'.format(response.status_code))
+            
+            try:
                 response = requests.post('https://aip.baidubce.com/rpc/2.0/nlp/v1/sentiment_classify',
-                                    params=params, headers=headers, json=post_json)
-    
-            if response.text != None:
-                res_json = json.loads(response.text)
-                if res_json.get('items') != None and res_json.get('items')[0].get('positive_prob') != None: 
-                    prob = res_json.get('items')[0].get('positive_prob')
-                    #print (prob)
-                    positive_prob.append(prob)
+                                        params=params, headers=headers, json=post_json, timeout=1.0)
+                if response.status_code != 200:
+                    time.sleep(2.0)
+                    print ('status_code = {}'.format(response.status_code))
+                    response = requests.post('https://aip.baidubce.com/rpc/2.0/nlp/v1/sentiment_classify',
+                                        params=params, headers=headers, json=post_json, timeout=1.0)
+                print ("place 2")
+                if response.text != None:
+                    res_json = json.loads(response.text)
+                    if res_json.get('items') != None and res_json.get('items')[0].get('positive_prob') != None: 
+                        prob = res_json.get('items')[0].get('positive_prob')
+                        #print (prob)
+                        positive_prob.append(prob)
+                    else:
+                        print('In {}: {}'.format(get_sentiment.__name__, float(-1)))
+                        positive_prob.append(float(-1))
+                    print ("place 3")
                 else:
                     print('In {}: {}'.format(get_sentiment.__name__, float(-1)))
                     positive_prob.append(float(-1))
-            else:
-                print('In {}: {}'.format(get_sentiment.__name__, float(-1)))
+                    print ("place 4")
+                
+            except Exception as err:
                 positive_prob.append(float(-1))
+                print("Error {}".format(err))
+                time.sleep(2)
+            
             elapsed = (time.clock() - start_time)
-            if 0.034 > elapsed:
-                time.sleep(0.034 - elapsed)
-
-        if cnt % 1000 == 0 and output:
+            if 0.04 > elapsed:
+                time.sleep(0.04 - elapsed)
+                    
+#        if cnt % 1000 == 0 and output:
+        if cnt % 1000 == 0 and output or True:
             print ('In {}: cnt = {}'.format(get_sentiment.__name__, cnt))
             
     if len(data) != len(positive_prob):
@@ -227,6 +241,7 @@ def run():
     data['senti'] = get_sentiment(data)
     
     print ('In {}: Writing data now'.format(run.__name__))
+    
     data.to_csv('../ScrapyDatas/weibo_test_data.csv')
     print ('In {}: data written'.format(run.__name__))
     

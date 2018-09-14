@@ -200,7 +200,10 @@ def get_critical_words(data, data_idf_dict):
 def get_word_senti(data):
     
     print ('In {}, begin, date is {}'.format(get_word_senti.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
-
+    
+    good_cnt = {}
+    bad_cnt = {}
+    mid_cnt = {}
     word_senti = {}
     for sen, cri_word in zip(data.senti, data.critical_word):
         #print(sen)
@@ -208,21 +211,20 @@ def get_word_senti(data):
         for w in cri_word:
             if sen == None or not isinstance(sen, float) or sen < 0:
                 continue
+            if w not in word_senti:
+                word_senti[w] = good_cnt[w] = bad_cnt[w] = mid_cnt[w] = 0
             if (sen > 0.7):
-                if w in word_senti:
-                    word_senti[w] += 1
-                else:
-                    word_senti[w] = 1
-            if (sen < 0.3):
-                if w in word_senti:
-                    word_senti[w] -= 1
-                else:
-                    word_senti[w] = -1
-    
+                word_senti[w] += 1
+                good_cnt[w] += 1 
+            elif (sen < 0.3):
+                word_senti[w] -= 1
+                bad_cnt[w] += 1 
+            else:
+                mid_cnt[w] += 1
+
     print ('In {}, end, date is {}'.format(get_word_senti.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
     
-    return word_senti
-    
+    return {x: (word_senti[x], good_cnt[x], mid_cnt[x], bad_cnt[x]) for x in word_senti}
     
 # ### 好坏词语
 def output_word_senti(word_senti_posi, word_senti_nega):
@@ -230,9 +232,9 @@ def output_word_senti(word_senti_posi, word_senti_nega):
     print ('In {}, begin, date is {}'.format(output_word_senti.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
     for x in word_senti_posi:
-        print (x)
+        print (x[0], x[1][0], x[1][1], x[1][2], x[1][3])
     for x in word_senti_nega:
-        print (x)
+        print (x[0], x[1][0], x[1][1], x[1][2], x[1][3])
         
     print ('In {}, end, date is {}'.format(output_word_senti.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
     
@@ -346,6 +348,7 @@ def run():
     
     stop_words = read_stop_words()
     data = pd.read_csv('../ScrapyDatas/weibo_test_data.csv')
+    
     data_dict_all = get_data_dict(data, stop_words)
     data.dict = get_clean_word_list(data, data_dict_all)
     
@@ -381,16 +384,16 @@ def run():
     output_tf(data_dict_all, collection_tf, day)
     print ('In {}: Analyzing tfidf and writing Mongodb now'.format(run.__name__))
     output_tf_idf(data_dict_all, data_idf_dict_all, collection_tfidf, day)
-    
+#    
     ## Output texts with most emotions and write into Mongodb
     print ('In {}: Analyzing word senti now'.format(run.__name__))
     word_senti = get_word_senti(data)
-    word_senti_posi = sorted(word_senti.items(), key=lambda x: x[1], reverse=True)[:500]
-    word_senti_nega = sorted(word_senti.items(), key=lambda x: x[1], reverse=False)[:500]
+    word_senti_posi = sorted(word_senti.items(), key=lambda x: x[1][0], reverse=True)[:500]
+    word_senti_nega = sorted(word_senti.items(), key=lambda x: x[1][0], reverse=False)[:500]
     output_word_senti(word_senti_posi, word_senti_nega)
     
     print ('In {}: Writing good word senti into mongodb'.format(run.__name__))
-    
+
 #    collection_good.delete_many({})
     deletes = collection_good.find({'created_date': {'$not': time_re}})
     del_id = []
@@ -399,9 +402,10 @@ def run():
             del_id.append(dele.get('_id'))
     for id in del_id:
         collection_good.delete_one({'_id': id})
-        
-    for (word, sen) in word_senti_posi:
-        collection_good.insert_one({'word':str(word), 'senti':float(sen), 'created_date':str(day)})
+    
+    for (word, (sen, good, mid, bad)) in word_senti_posi:
+        collection_good.insert_one({'word':str(word), 'senti':float(sen), 'good':int(good), 'mid':int(mid)
+            , 'bad': int(bad), 'created_date':str(day)})
     print ('In {}: Writing bad word senti into mongodb'.format(run.__name__))
 #    collection_bad.delete_many({})
     
@@ -413,8 +417,9 @@ def run():
     for id in del_id:
         collection_bad.delete_one({'_id': id})
         
-    for (word, sen) in word_senti_nega:
-        collection_bad.insert_one({'word':str(word), 'senti':float(sen), 'created_date':str(day)})
+    for (word, (sen, good, mid, bad)) in word_senti_nega:
+        collection_bad.insert_one({'word':str(word), 'senti':float(sen), 'good':int(good), 'mid':int(mid)
+            , 'bad': int(bad), 'created_date':str(day)})
     
     ## Output relation graphs and write into Mongodb
     print ('In {}: Analyzing graph and writing into mongodb'.format(run.__name__))

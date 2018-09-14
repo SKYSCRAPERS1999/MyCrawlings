@@ -133,7 +133,7 @@ def get_sentiment(data, output=True):
     print ('In {}, begin, date is {}'.format(get_sentiment.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
     headers = {'Content-Type': 'application/json'}
-    params = {'access_token': '24.9ac5bfe09d008481c4dc699f69288ed1.2592000.1537058351.282335-11569351'}
+    params = {'access_token': '24.c9131bac51cd1bb1e84549e9ea8287c0.2592000.1539388150.282335-11569351'}
     positive_prob = []
     omit_cnt = 0
     for cnt, (text, senti) in enumerate(zip(data.c_text, data.senti)):
@@ -204,10 +204,10 @@ def run():
     
     #dependence: jieba_dict_companys, stop_words.txt, stop_letters.txt
     print ('In {}, begin, date is {}'.format(run.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
-
+    
     jieba.load_userdict('jieba_dict_companys')
     stop_words, re_stop_letter = read_stop_words()
-    
+        
     data = get_data()
     data['text'] = prettify_text(data)
     data['c_text'] = get_clean_text(data)

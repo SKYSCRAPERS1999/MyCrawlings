@@ -72,6 +72,7 @@ class WeiboSpider(Spider):
                     field_map = {
                         'id': 'id', 'attitudes_count': 'attitudes_count', 'comments_count': 'comments_count',
                         'reposts_count': 'reposts_count', 'created_at': 'created_at', 'source': 'source', 'text': 'text'
+                        ,'avatar': 'profile_image_url', 'name': 'screen_name'
                     }
                     for field, attr in field_map.items():
                         weibo_item[field] = mblog.get(attr)

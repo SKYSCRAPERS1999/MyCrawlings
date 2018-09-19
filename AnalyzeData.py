@@ -11,7 +11,10 @@ from snownlp import SnowNLP
 
 week = [ time.strftime('%Y-%m-%d', time.localtime(time.time() - x * 24 * 60 * 60)) for x in range(8) ]
 time_re = re.compile('|'.join(week))
-
+def try_eval(x):
+    if isinstance(x, str): return eval(x)
+    elif isinstance(x, dict): return x
+    else: return {}
 # ## load idf
 
 def tf(word, count):
@@ -46,27 +49,30 @@ def tpok(word):
 def get_data_dict(data, stop_words):
     
     print ('In {}, begin, date is {}'.format(get_data_dict.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
-    
+        
     data_dict_all = {}
     for dic in data.dict:
-        for k, v in eval(dic).items():
-            if k in data_dict_all:
-                data_dict_all[k] += v
-            else:
-                data_dict_all[k] = v
-                
-            if len(k) == 4:
-                head, tail = k[2:], k[:-2]
-                if head in data_dict_all:
-                    data_dict_all[head] += v
+        try:
+            dic = try_eval(dic)
+            for k, v in dic.items():
+                if k in data_dict_all:
+                    data_dict_all[k] += v
                 else:
-                    data_dict_all[head] = v
+                    data_dict_all[k] = v
                     
-                if tail in data_dict_all:
-                    data_dict_all[tail] += v
-                else:
-                    data_dict_all[tail] = v
-                    
+                if len(k) == 4:
+                    head, tail = k[2:], k[:-2]
+                    if head in data_dict_all:
+                        data_dict_all[head] += v
+                    else:
+                        data_dict_all[head] = v
+                        
+                    if tail in data_dict_all:
+                        data_dict_all[tail] += v
+                    else:
+                        data_dict_all[tail] = v
+        except Exception as err:
+            print("Error {} in {}".format(err), get_data_dict.__name__)
     data_dict_all = dict([ (k, v) for k, v in data_dict_all.items() if (tpok(k) or v > 50)])
     data_dict_all = dict(sorted(data_dict_all.items(), key=lambda x: math.sqrt(len(x[0]))*x[1], reverse=True))
     data_dict_all = dict([(x,y) for x,y in data_dict_all.items() if (y > 3 and x not in stop_words)]) #remove rare witnesses
@@ -81,12 +87,15 @@ def get_clean_word_list(data, data_dict_all):
 
     data_words_list_clean = []
     for dic in data.dict:
-        data_words_clean = {}
-        for k, v in eval(dic).items():
-            if k in data_dict_all:
-                data_words_clean[k] = v
-        data_words_list_clean.append(data_words_clean)
-
+        try:
+            data_words_clean = {}
+            dic = try_eval(dic)
+            for k, v in dic.items():
+                if k in data_dict_all:
+                    data_words_clean[k] = v
+            data_words_list_clean.append(data_words_clean)
+        except Exception as err:
+            print("Error {} in {}".format(err), get_clean_word_list.__name__)
     print ('In {}, end, date is {}'.format(get_clean_word_list.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
     
     return data_words_list_clean
@@ -98,24 +107,26 @@ def get_data_idf_dict(data_idf_dict):
 
     data_idf_dict_all = {}
     for dic in data_idf_dict:
-        for k, v in dic.items():
-            if k in data_idf_dict_all:
-                data_idf_dict_all[k] += v
-            else:
-                data_idf_dict_all[k] = v
-                
-            if len(k) == 4:
-                head, tail = k[2:], k[:-2]
-                if head in data_idf_dict_all:
-                    data_idf_dict_all[head] += v
+        try:
+            for k, v in dic.items():
+                if k in data_idf_dict_all:
+                    data_idf_dict_all[k] += v
                 else:
-                    data_idf_dict_all[head] = v
+                    data_idf_dict_all[k] = v
                     
-                if tail in data_idf_dict_all:
-                    data_idf_dict_all[tail] += v
-                else:
-                    data_idf_dict_all[tail] = v
-    
+                if len(k) == 4:
+                    head, tail = k[2:], k[:-2]
+                    if head in data_idf_dict_all:
+                        data_idf_dict_all[head] += v
+                    else:
+                        data_idf_dict_all[head] = v
+                        
+                    if tail in data_idf_dict_all:
+                        data_idf_dict_all[tail] += v
+                    else:
+                        data_idf_dict_all[tail] = v
+        except Exception as err:
+            print("Error {} in {}".format(err), data_idf_dict_all.__name__)
     data_idf_dict_all = dict(sorted(data_idf_dict_all.items(), key=lambda x: math.sqrt(len(x[0]))*x[1], reverse=True))
     data_idf_dict_all = dict([(x,y) for x,y in data_idf_dict_all.items() if y > 10])
     
@@ -347,8 +358,12 @@ def run():
     pd.set_option('display.max_colwidth',1000)    
     
     stop_words = read_stop_words()
-    data = pd.read_csv('../ScrapyDatas/weibo_test_data.csv')
     
+    try:
+        data = pd.read_csv('../ScrapyDatas/weibo_test_data.csv', lineterminator='\n')
+    except Exception as err:
+        print("Error {} in {}".format(err, run.__name__)) 
+
     data_dict_all = get_data_dict(data, stop_words)
     data.dict = get_clean_word_list(data, data_dict_all)
     
@@ -356,9 +371,10 @@ def run():
     #data_idf_dict = [ eval(dic) for dic in np.array(data_idf_dict[1]).tolist() ]
 
     data_idf_dict = []
-    data_idf_iterator = pd.read_csv('../ScrapyDatas/weibo_idf_dict.csv', chunksize=10000, header=None)
+    data_idf_iterator = pd.read_csv('../ScrapyDatas/weibo_idf_dict.csv', chunksize=10000, header=None, lineterminator='\n')
+        
     for data_chunk in data_idf_iterator:
-        data_idf_dict_chunk = [ eval(dic) for dic in np.array(data_chunk[1]).tolist() ]
+        data_idf_dict_chunk = [ try_eval(dic) for dic in np.array(data_chunk[1]).tolist() ]
         data_idf_dict.extend(data_idf_dict_chunk)
         
     data_idf_dict_all = get_data_idf_dict(data_idf_dict)

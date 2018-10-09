@@ -133,7 +133,7 @@ def get_sentiment(data, output=True):
     print ('In {}, begin, date is {}'.format(get_sentiment.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
     headers = {'Content-Type': 'application/json'}
-    params = {'access_token': '24.c9131bac51cd1bb1e84549e9ea8287c0.2592000.1539388150.282335-11569351'}
+    params = {'access_token': '24.6494167631e3c5ba84457c2c19526dd6.2592000.1541644100.282335-11569351'}
     positive_prob = []
     omit_cnt = 0
     for cnt, (text, senti) in enumerate(zip(data.c_text, data.senti)):
@@ -221,7 +221,7 @@ def run():
     data['dict'] = pd.Series(word_counts)  
     data['level'] = (1 + data.at_cnt) * (1 + data.rep_cnt) * (1 + data.cmt_cnt)
     
-    data_prev = pd.read_csv('../ScrapyDatas/weibo_test_data.csv')
+    data_prev = pd.read_csv('../ScrapyDatas/weibo_test_data.csv', lineterminator='\n')
     senti_dict = dict([ (str(id), str(sen)) for id, sen in zip(data_prev.id, data_prev.senti)])
     
     data['senti'] = pd.Series([])

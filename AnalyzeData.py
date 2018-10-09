@@ -143,6 +143,8 @@ def output_tf(data_dict_all, collection, day):
     print("Top words in all documents")
     all_scores = { word: tf(word, data_dict_all) for word in data_dict_all}
     all_sorted_words = sorted(all_scores.items(), key=lambda x: math.sqrt(len(x[0]))*x[1], reverse=True)
+   
+    selected_num = min(3000, len(all_sorted_words))
     
     deletes = collection.find({'created_date': {'$not': time_re}})
     del_id = []
@@ -154,7 +156,7 @@ def output_tf(data_dict_all, collection, day):
 #    collection.delete_many({})
     
     print ('Here1')
-    for word, score in all_sorted_words[:500]:
+    for word, score in all_sorted_words[:selected_num]:
         print("\tWord: {}, TF: {}".format(word, round(score, 5))) 
         collection.insert_one({'word':word, 'tf': round(score, 5), 'created_date': str(day)})
     
@@ -170,6 +172,8 @@ def output_tf_idf(data_dict_all, data_idf_dict_all, collection, day):
                          for word in data_dict_all }
     all_sorted_words = sorted(all_scores.items(), key=lambda x: math.sqrt(len(x[0]))*x[1], reverse=True)
     
+    selected_num = min(3000, len(all_sorted_words))
+
     deletes = collection.find({'created_date': {'$not': time_re}})
     del_id = []
     for dele in deletes:
@@ -180,7 +184,7 @@ def output_tf_idf(data_dict_all, data_idf_dict_all, collection, day):
 #    collection.delete_many({})
     
     print ('Here2')
-    for word, score in all_sorted_words[:500]:
+    for word, score in all_sorted_words[:selected_num]:
         print("\tWord: {}, TF-IDF: {}".format(word, round(score, 5))) 
         collection.insert_one({'word':word, 'tfidf': round(score, 5), 'created_date': str(day)})
     
@@ -404,8 +408,10 @@ def run():
     ## Output texts with most emotions and write into Mongodb
     print ('In {}: Analyzing word senti now'.format(run.__name__))
     word_senti = get_word_senti(data)
-    word_senti_posi = sorted(word_senti.items(), key=lambda x: x[1][0], reverse=True)[:500]
-    word_senti_nega = sorted(word_senti.items(), key=lambda x: x[1][0], reverse=False)[:500]
+    selected_num = min(3000, len(word_senti) // 2)
+    
+    word_senti_posi = sorted(word_senti.items(), key=lambda x: x[1][0], reverse=True)[:selected_num]
+    word_senti_nega = sorted(word_senti.items(), key=lambda x: x[1][0], reverse=False)[:selected_num]
     output_word_senti(word_senti_posi, word_senti_nega)
     
     print ('In {}: Writing good word senti into mongodb'.format(run.__name__))

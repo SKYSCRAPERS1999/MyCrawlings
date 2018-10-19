@@ -2,8 +2,9 @@
 from scrapy import Request, Spider
 import json, pymongo, time, re
 from weibo_content.items import WeiboItem, TextItem
+from weibo_content.idmap import user_id_map
 
-week = [ time.strftime('%Y-%m-%d', time.localtime(time.time() - x * 24 * 60 * 60)) for x in range(8) ]
+week = [ time.strftime('%Y-%m-%d', time.localtime(time.time() - x * 24 * 60 * 60)) for x in range(8) ] 
 
 class WeiboSpider(Spider):
     name = 'weibo'
@@ -81,6 +82,8 @@ class WeiboSpider(Spider):
                         if retweet.get('text') != None:
                             weibo_item['text'] += retweet.get('text')
                     weibo_item['user'] = response.meta.get('uid')
+                    ## cluster_class
+                    weibo_item['cluster_class'] = user_id_map[int(weibo_item['id'])]
                     
                     yield weibo_item
                     

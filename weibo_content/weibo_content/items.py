@@ -41,7 +41,8 @@ class WeiboItem(Item):
     created_at = Field()
     created_date = Field()
     crawled_at = Field()
-
+    cluster_class = Field()
+    
 class TextItem(Item):
     collection = 'weibos'  
     id = Field()

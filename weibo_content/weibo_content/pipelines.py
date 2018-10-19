@@ -84,5 +84,3 @@ class MongoPipeline(object):
             else:
                 raise DropItem('Date not match')
         return item
-       
-

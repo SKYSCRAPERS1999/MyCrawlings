@@ -133,10 +133,48 @@ def insert_wordcnt(sentense_dict):
             time.sleep(5)
     print ('In {}, end, date is {}'.format(insert_wordcnt.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
     db.close()
+    
+def insert_other_table(input_list, regex_dict):
+    print ('In {}, begin, date is {}'.format(insert_other_table.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+    db = pymysql.connect(host='119.29.190.115', user='impulse', password='njuacmicpc',
+                         port=3306, db='gov', write_timeout = 6, read_timeout = 6)
+    cursor = db.cursor()
+    table_list = ['TZGG','HYPX','ZCFB','ZCJD','ZFSJ','YWDD']
+    for dic in input_list:
+        tit = dic['title']
+        try:
+            is_inserted = False
+            for name in table_list[:-1]:
+                if tit != None and re.search(regex_dict[name], tit) != None:
+                    sql_insert(db=db,cursor=cursor,data=dic,table=name)
+                    is_inserted = True
+            if is_inserted == False or re.search(regex_dict[table_list[-1]], tit) != None:
+                sql_insert(db=db,cursor=cursor,data=dic,table=table_list[-1])
+        except Exception as err:
+            print("Error {}".format(err))
+            time.sleep(5)
+    db.close()
+    print ('In {}, end, date is {}'.format(insert_other_table.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
 def run():
+    #通知公告(TZGG)：'通知|公告|号令|函|通报|公示|问卷'
+    #会议培训(HYPX)：'培训|开班|学习|会议|会$|召开|的办法|的决定'
+    #政策发布(ZCFB)：'发布|印发|决定|意见
+    #政策解读(ZCJD)：'解读|谈|答'
+    #政府数据(ZFSJ)：'年.*表$|报$|报告|月报|季报|年报$
+    #要闻导读(YWDD)：'活动|开展' (以及前面未出现的所有)
+    regex = dict()
+    regex['TZGG'] = re.compile('通知|公告|号令|函|通报|公示|问卷')
+    regex['HYPX'] = re.compile('培训|开班|学习|会议|会$|召开|的办法|的决定')
+    regex['ZCFB'] = re.compile('发布|印发|决定|意见')
+    regex['ZCJD'] = re.compile('解读|谈|答')
+    regex['ZFSJ'] = re.compile('年.*表$|报$|报告|月报|季报|年报')
+    regex['YWDD'] = re.compile('活动|开展')
+    
     input_list = aggregate_tables()
-
+    
+    insert_other_table(input_list, regex)
+    
     insert_summary_table(input_list)
 
     sdict = get_sentense_dict()

@@ -588,6 +588,7 @@ def get_nyj_zhejiang():
     xpath = '//div[@class="d5"]/span/text()'
     dates = html.xpath(xpath)
     dates = [ ele.replace('/', '-') for ele in dates]
+    dates = [ '{x[0]}-{x[1]:0>2}-{x[2]:0>2}'.format(x = ele.split('-')) for ele in dates]
     # print (dates)
     data_zhejiang = [ (t, l, d, 'zhejiang') for (t, l, d) in zip(titles, links, dates) ]
     
@@ -606,6 +607,7 @@ def get_nyj_zhejiang():
     xpath = '//div[@class="d5"]/span/text()'
     dates = html.xpath(xpath)
     dates = [ ele.replace('/', '-') for ele in dates]
+    dates = [ '{x[0]}-{x[1]:0>2}-{x[2]:0>2}'.format(x = ele.split('-')) for ele in dates]
     # print (dates)
     data_zhejiang += [ (t, l, d, 'zhejiang') for (t, l, d) in zip(titles, links, dates) ]
     

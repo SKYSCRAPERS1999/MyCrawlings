@@ -1,9 +1,9 @@
 # coding: utf-8
 import requests, re, time, pymysql, jieba
 import jieba.posseg as postag
-tables = [ 'wms']
-#tables = [ 'wms', 'swb','nyj', 'zscqj', 'jbw', 'zjh', 'yjh', 'rmyh']
-lim = 5
+#tables = [ 'wms']
+tables = [ 'wms', 'swb','nyj', 'zscqj', 'jbw', 'zjh', 'yjh', 'rmyh']
+lim = 10
 
 def get_sql(table = 'jbw', dec = 0):
     month = time.strftime('%Y-%m', time.localtime(time.time() - 24 * 3600 * 30 * dec))
@@ -133,13 +133,20 @@ def insert_wordcnt(sentense_dict):
             time.sleep(5)
     print ('In {}, end, date is {}'.format(insert_wordcnt.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
     db.close()
-    
+
+def dic_with_name(dic, name):
+    dic['type'] = name
+    return dic
+
 def insert_other_table(input_list, regex_dict):
     print ('In {}, begin, date is {}'.format(insert_other_table.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
     db = pymysql.connect(host='119.29.190.115', user='impulse', password='njuacmicpc',
                          port=3306, db='gov', write_timeout = 6, read_timeout = 6)
     cursor = db.cursor()
     table_list = ['TZGG','HYPX','ZCFB','ZCJD','ZFSJ','YWDD']
+    
+    input_list_with_type = []
+    
     for dic in input_list:
         tit = dic['title']
         try:
@@ -147,14 +154,23 @@ def insert_other_table(input_list, regex_dict):
             for name in table_list[:-1]:
                 if tit != None and re.search(regex_dict[name], tit) != None:
                     sql_insert(db=db,cursor=cursor,data=dic,table=name)
+                    input_list_with_type.append(dic_with_name(dic, name))
+#                     print (dic_with_name(dic,name))
                     is_inserted = True
+                    
             if is_inserted == False or re.search(regex_dict[table_list[-1]], tit) != None:
                 sql_insert(db=db,cursor=cursor,data=dic,table=table_list[-1])
+                if is_inserted == False: input_list_with_type.append(dic_with_name(dic,table_list[-1]))
+#                 print (dic_with_name(dic,table_list[-1]))
+                
         except Exception as err:
             print("Error {}".format(err))
             time.sleep(5)
+            
     db.close()
     print ('In {}, end, date is {}'.format(insert_other_table.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
+
+    return input_list_with_type
 
 def run():
     #通知公告(TZGG)：'通知|公告|号令|函|通报|公示|问卷'
@@ -173,9 +189,9 @@ def run():
     
     input_list = aggregate_tables()
     
-    insert_other_table(input_list, regex)
+    input_list_with_type = insert_other_table(input_list, regex)
     
-    insert_summary_table(input_list)
+    insert_summary_table(input_list_with_type)
 
     sdict = get_sentense_dict()
 

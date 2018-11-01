@@ -28,9 +28,11 @@ def run():
         
         for day in week:
             from_result = from_collection.find({'created_date':day})
-            count = from_result.count()
-            print ('(Collection, day) = ({}, {}): {} items'.format(col, day, count))
-            if from_result.count() > 0:
+            cur_count = from_result.count()
+            to_result = to_collection.find({'created_date':day})
+            prev_count = to_result.count()
+            print ('(Collection, day) = ({}, {}): {} items, {} items previously had'.format(col, day, cur_count, prev_count))
+            if prev_count < 0.99 * cur_count:
                 for i, item in enumerate(from_result):
                     try:
                         if col == 'weibos':

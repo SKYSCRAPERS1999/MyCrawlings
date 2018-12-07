@@ -32,13 +32,13 @@ def get_list(data, i = 0, K = 3):
 
 url = 'http://api.data.cma.cn:8090/api'
 form = {
-    'userId': '541580345135c63Om',
-    'pwd': 'vUXahFO',
+    'userId': '542355761660o8fuw',
+    'pwd': 'bJ4ImKk',
     'dataFormat': 'json',
     'interfaceId': 'getSurfEleByTimeRangeAndStaID',
     'dataCode': 'SURF_CHN_MUL_HOR',
-    'timeRange': '[{}0000,{}0000]'.format(time.strftime('%Y%m%d22', time.localtime(time.time() - 6 * 24 * 60 * 60)),
-                 time.strftime('%Y%m%d22', time.localtime(time.time()))),
+    'timeRange': '[{}0000,{}0000]'.format(time.strftime('%Y%m%d23', time.localtime(time.time() - 6 * 24 * 60 * 60)),
+                 time.strftime('%Y%m%d23', time.localtime(time.time() - 1 * 24 * 60 * 60))),
     'staIDs': '',
     'elements': 'TEM,Station_Id_C,Year,Mon,Day,Hour',
 }
@@ -46,7 +46,7 @@ form = {
 K = 3
 def read_id_list():
     id_list = []
-    with open("./id_list", "r") as fp:
+    with open("./Weather_Scrawling/id_list", "r") as fp:
         for x in fp:
             id_list.append(str(x[:-1]))
     return id_list
@@ -66,6 +66,7 @@ def run():
         texts.append(response.text)
         
     result = [json.loads(x) for x in texts]
+    print (result)
     for i in range(K):
         result[i] = result[i]['DS']
     
@@ -118,3 +119,4 @@ def run():
     
 if __name__ == '__main__':
     run()
+

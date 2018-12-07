@@ -133,7 +133,7 @@ def get_sentiment(data, output=True):
     print ('In {}, begin, date is {}'.format(get_sentiment.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
     headers = {'Content-Type': 'application/json'}
-    params = {'access_token': '24.6494167631e3c5ba84457c2c19526dd6.2592000.1541644100.282335-11569351'}
+    params = {'access_token': '24.b86396e3215383c52c6a41baf0fce98b.2592000.1544316668.282335-11569351'}
     positive_prob = []
     omit_cnt = 0
     for cnt, (text, senti) in enumerate(zip(data.c_text, data.senti)):

@@ -190,6 +190,16 @@ def output_tf_idf(data_dict_all, data_idf_dict_all, collection, day):
     
     print ('In {}, end, date is {}'.format(output_tf_idf.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
     
+def get_word_count(lst):
+    count = {}
+    if isinstance(lst, list):
+        for x in lst:
+            if x in count:
+                count[x] += 1
+            else:
+                count[x] = 1
+    return count
+
 # tf-idf for each
 def get_critical_words(data, data_idf_dict):
     
@@ -354,19 +364,20 @@ def read_stop_words():
 
 mongo_uri = 'mongodb://impulse:njuacmicpc@120.79.139.239/weibo'
 
-def get_data():
+def get_data(day):
     
     print ('In {}, begin, date is {}'.format(get_data.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
     client = pymongo.MongoClient(host=mongo_uri, port=27017)
     db = client['weibo']
     collection = db['weibos']
-    results = collection.find({}, {'id':1,'senti':1,'words':1})
+    results = collection.find({'created_date':day}, {'id':1,'senti':1,'level':1,'words':1})
     print ('In {}: len of db: {}'.format(get_data.__name__, results.count()))
     data = pd.DataFrame(list(results)) # for test
+    
+    print (data[:5])
     try:
-        data = data.get(['id', 'senti', 'words'])
-        data.columns = ['id', 'senti', 'dict']
+        data = data.get(['id', 'senti', 'level', 'words'])
     except:
         print ('In {}: some errors occur'.format(get_data.__name__))        
     
@@ -386,17 +397,6 @@ def run():
     
     stop_words = read_stop_words()
     
-    try:
-        data = get_data()
-    except Exception as err:
-        print("Error {} in {}".format(err, run.__name__)) 
-
-    data_dict_all = get_data_dict(data, stop_words)
-    data.dict = get_clean_word_list(data, data_dict_all)
-    
-    #data_idf_dict = pd.read_csv('../ScrapyDatas/weibo_idf_dict.csv', header=None)
-    #data_idf_dict = [ eval(dic) for dic in np.array(data_idf_dict[1]).tolist() ]
-
     data_idf_dict = []
     data_idf_iterator = pd.read_csv('../ScrapyDatas/weibo_idf_dict.csv', chunksize=10000, header=None, lineterminator='\n')
         
@@ -405,76 +405,90 @@ def run():
         data_idf_dict.extend(data_idf_dict_chunk)
         
     data_idf_dict_all = get_data_idf_dict(data_idf_dict)
-    
     ##open Mongodb
-    mongo_uri = 'mongodb://impulse:njuacmicpc@120.79.139.239/weibo'
-    client = pymongo.MongoClient(host=mongo_uri, port=27017)
-    db = client['weibo']
-    collection_tf = db['word_tf']
-    collection_tfidf = db['word_tfidf']
-    collection_good = db['good_words']
-    collection_bad = db['bad_words']
-    collection_graph = db['word_graph']
-
-    day = time.strftime('%Y-%m-%d', time.localtime(time.time())) 
     
-    critical_words_list = get_critical_words(data, data_idf_dict)
-    data['critical_word'] = critical_words_list
-    data.to_csv('../ScrapyDatas/weibo_test_data.csv')
-    
-    ## Output tf and tf-idfs and write into Mongodb
-    print ('In {}: Analyzing tf and writing Mongodb now'.format(run.__name__))
-    output_tf(data_dict_all, collection_tf, day)
-    print ('In {}: Analyzing tfidf and writing Mongodb now'.format(run.__name__))
-    output_tf_idf(data_dict_all, data_idf_dict_all, collection_tfidf, day)
-#    
-    ## Output texts with most emotions and write into Mongodb
-    print ('In {}: Analyzing word senti now'.format(run.__name__))
-    word_senti = get_word_senti(data)
-    selected_num = min(3000, len(word_senti) // 2)
-    
-    word_senti_posi = sorted(word_senti.items(), key=lambda x: x[1][0], reverse=True)[:selected_num]
-    word_senti_nega = sorted(word_senti.items(), key=lambda x: x[1][0], reverse=False)[:selected_num]
-    output_word_senti(word_senti_posi, word_senti_nega)
-    
-    print ('In {}: Writing good word senti into mongodb'.format(run.__name__))
-
-#    collection_good.delete_many({})
-    deletes = collection_good.find({'created_date': {'$not': time_re}})
-    del_id = []
-    for dele in deletes:
-        if dele.get('_id') != None:
-            del_id.append(dele.get('_id'))
-    for id in del_id:
-        collection_good.delete_one({'_id': id})
-    
-    for (word, (sen, good, mid, bad)) in word_senti_posi:
-        collection_good.insert_one({'word':str(word), 'senti':float(sen), 'good':int(good), 'mid':int(mid)
-            , 'bad': int(bad), 'created_date':str(day)})
-    print ('In {}: Writing bad word senti into mongodb'.format(run.__name__))
-#    collection_bad.delete_many({})
-    
-    deletes = collection_bad.find({'created_date': {'$not': time_re}})
-    del_id = []
-    for dele in deletes:
-        if dele.get('_id') != None:
-            del_id.append(dele.get('_id'))
-    for id in del_id:
-        collection_bad.delete_one({'_id': id})
+    for i in range(1, 7):
+        client = pymongo.MongoClient(host=mongo_uri, port=27017)
         
-    for (word, (sen, good, mid, bad)) in word_senti_nega:
-        collection_bad.insert_one({'word':str(word), 'senti':float(sen), 'good':int(good), 'mid':int(mid)
-            , 'bad': int(bad), 'created_date':str(day)})
+        db = client['weibo']
+        collection_tf = db['word_tf']
+        collection_tfidf = db['word_tfidf']
+        collection_good = db['good_words']
+        collection_bad = db['bad_words']
+        collection_graph = db['word_graph']
     
-    ## Output relation graphs and write into Mongodb
-    print ('In {}: Analyzing graph and writing into mongodb'.format(run.__name__))
-    output_graph(data, collection_graph, day)
+        print ('i = {}'.format(i))
+        day = time.strftime('%Y-%m-%d', time.localtime(time.time() - 24 * 60 * 60 * i)) 
+        try:
+            data = get_data(day)
+#            return
+        except Exception as err:
+            print("Error {} in {}".format(err, run.__name__)) 
+        
+        word_counts = [ get_word_count(lst) for lst in data.words]
+        data['dict'] = pd.Series(word_counts)    
+        data_dict_all = get_data_dict(data, stop_words)
+
+        data.dict = get_clean_word_list(data, data_dict_all)
+        
+        critical_words_list = get_critical_words(data, data_idf_dict)
+        data['critical_word'] = critical_words_list
+        
+        print (critical_words_list[:10])
     
-    ## Output hottest texts
-    output_hot_text(data)
+        ## Output tf and tf-idfs and write into Mongodb
+        print ('In {}: Analyzing tf and writing Mongodb now'.format(run.__name__))
+        output_tf(data_dict_all, collection_tf, day)
+        print ('In {}: Analyzing tfidf and writing Mongodb now'.format(run.__name__))
+        output_tf_idf(data_dict_all, data_idf_dict_all, collection_tfidf, day)
+    #    
+        ## Output texts with most emotions and write into Mongodb
+        print ('In {}: Analyzing word senti now'.format(run.__name__))
+        word_senti = get_word_senti(data)
+        selected_num = min(3000, len(word_senti) // 2)
+        
+        word_senti_posi = sorted(word_senti.items(), key=lambda x: x[1][0], reverse=True)[:selected_num]
+        word_senti_nega = sorted(word_senti.items(), key=lambda x: x[1][0], reverse=False)[:selected_num]
+        output_word_senti(word_senti_posi, word_senti_nega)
+        
+        print ('In {}: Writing good word senti into mongodb'.format(run.__name__))
     
-    client.close()    
-    
+    #    collection_good.delete_many({})
+        deletes = collection_good.find({'created_date': {'$not': time_re}})
+        del_id = []
+        for dele in deletes:
+            if dele.get('_id') != None:
+                del_id.append(dele.get('_id'))
+        for id in del_id:
+            collection_good.delete_one({'_id': id})
+        
+        for (word, (sen, good, mid, bad)) in word_senti_posi:
+            collection_good.insert_one({'word':str(word), 'senti':float(sen), 'good':int(good), 'mid':int(mid)
+                , 'bad': int(bad), 'created_date':str(day)})
+        print ('In {}: Writing bad word senti into mongodb'.format(run.__name__))
+    #    collection_bad.delete_many({})
+        
+        deletes = collection_bad.find({'created_date': {'$not': time_re}})
+        del_id = []
+        for dele in deletes:
+            if dele.get('_id') != None:
+                del_id.append(dele.get('_id'))
+        for id in del_id:
+            collection_bad.delete_one({'_id': id})
+       
+        for (word, (sen, good, mid, bad)) in word_senti_nega:
+            collection_bad.insert_one({'word':str(word), 'senti':float(sen), 'good':int(good), 'mid':int(mid)
+                , 'bad': int(bad), 'created_date':str(day)})
+        
+        ## Output relation graphs and write into Mongodb
+        print ('In {}: Analyzing graph and writing into mongodb'.format(run.__name__))
+        output_graph(data, collection_graph, day)
+        
+        ## Output hottest texts
+        output_hot_text(data)
+        
+        client.close()    
+        
     print ('In {}, end, date is {}'.format(run.__name__, time.strftime('%Y-%m-%d-%H:%M', time.localtime(time.time()))))
 
 if __name__ == '__main__':

@@ -46,7 +46,7 @@ form = {
 K = 3
 def read_id_list():
     id_list = []
-    with open("./Weather_Scrawling/id_list", "r") as fp:
+    with open("./id_list", "r") as fp:
         for x in fp:
             id_list.append(str(x[:-1]))
     return id_list
@@ -96,18 +96,23 @@ def run():
         while (i + 3 < n):
             avg = 0.25 * (float(cur[i]['TEM']) + float(cur[i+1]['TEM']) + float(cur[i+2]['TEM']) + float(cur[i+3]['TEM']))
             if(cur[i]['Day']!=cur[i+3]['Day']):
+                
+                print ('i, n = {}, {}'.format(i, n))
                 print(name, id)
                 print(cur[i]['Day'],cur[i+1]['Day'],cur[i+2]['Day'],cur[i+3]['Day'])
                 print(cur[i]['Hour'],cur[i+1]['Hour'],cur[i+2]['Hour'],cur[i+3]['Hour'])
-                while (cur[i]['Day']==cur[i+1]['Day']): i += 1
+#                while (cur[i]['Day']==cur[i+1]['Day']): i += 1
+                i += 1
+                
                 continue
             else:
                 date = '{x[0]}-{x[1]:0>2}-{x[2]:0>2}'.format(x = (cur[i]['Year'],cur[i]['Mon'],cur[i]['Day']) )
                 aggregate_weather.append({'prov':cur[i]['prov'],'year':cur[i]['Year'],'month':cur[i]['Mon'],
                                       'day':cur[i]['Day'],'TEM_Avg':avg,'date':date})
             i += 4
+            
         dic_by_name_agg[name] = aggregate_weather
-        
+    
     for key, dic_list in dic_by_name_agg.items():
         for dic in dic_list:
             cur = {}

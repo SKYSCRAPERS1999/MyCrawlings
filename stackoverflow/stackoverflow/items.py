@@ -11,18 +11,27 @@ from scrapy import Item, Field
 class QuestionItem(Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    id = Field()
+    collection = "questions"
+    q_id = Field()
     title = Field()
     votes = Field()
     answers = Field()
-    description = Field()
     time = Field()
     href = Field()
 
 
-class AnswerItem(Item):
-    id = Field()
+class QuestionFullItem(Item):
+    collection = "questions"
+    q_id = Field()
     content = Field()
+    codes = Field()
+
+
+class AnswerItem(Item):
+    collection = "answers"
+    q_id = Field()
+    a_id = Field()
+    content = Field()
+    codes = Field()
     votes = Field()
     time = Field()
-    name = Field()

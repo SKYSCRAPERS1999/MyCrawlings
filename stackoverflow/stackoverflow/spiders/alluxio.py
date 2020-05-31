@@ -31,8 +31,8 @@ class AlluxioSpider(scrapy.Spider):
                 q_item = QuestionItem()
                 q_item["title"] = question.xpath('.//div[@class="result-link"]/h3/a/@title').extract_first()
                 q_item['votes'] = question.xpath('.//div[@class="vote"]//span/strong/text()').extract_first()
-                q_item["answers"] = question.xpath('.//div[contains(@class, "status")]/strong/text()').extract_first()
-                if q_item["answers"] is None:
+                answer_status = question.xpath('.//div[contains(@class, "status")]/strong/text()').extract_first()
+                if answer_status is None:
                     continue
 
                 q_item["time"] = question.xpath('.//div[contains(@class, "started")]/span/@title').extract_first()
@@ -57,15 +57,15 @@ class AlluxioSpider(scrapy.Spider):
 
         question = response.xpath('//div[@id="mainbar"]/div[contains(@class, "question")]')
         answers = response.xpath('//div[@id="answers"]/div[contains(@class, "answer")]')
+        qf_item = QuestionFullItem()
+        qf_item["q_id"] = question.xpath('./@data-questionid').extract_first()
+        # qf_item["codes"] = question.xpath('.//code/text()').extract()
+        qf_item["content"] = question.xpath('.//div[@class="post-text"]').extract_first()
+
+        self.logger.info("QuestionFullItem: " + str(qf_item)[:20])
+        yield qf_item
+
         if answers:
-            qf_item = QuestionFullItem()
-            qf_item["q_id"] = question.xpath('./@data-questionid').extract_first()
-            qf_item["codes"] = question.xpath('.//code/text()').extract()
-            qf_item["content"] = question.xpath('.//div[@class="post-text"]').extract_first()
-
-            self.logger.info("QuestionFullItem: " + str(qf_item)[:20])
-            yield qf_item
-
             for answer in answers:
                 a_item = AnswerItem()
                 a_item["q_id"] = qf_item["q_id"]
@@ -73,7 +73,7 @@ class AlluxioSpider(scrapy.Spider):
                 a_item["content"] = answer.xpath('.//div[@class="post-text"]').extract_first()
                 a_item["votes"] = answer.xpath(
                     './/div[contains(@class,"votecell")]//div[contains(@class,"js-vote-count")]/@data-value').extract_first()
-                a_item["codes"] = answer.xpath('.//code/text()').extract()
+                # a_item["codes"] = answer.xpath('.//code/text()').extract()
                 a_item["time"] = answer.xpath(
                     './/div[@class="user-action-time"]/span[@class="relativetime"]/@title').extract_first()
 

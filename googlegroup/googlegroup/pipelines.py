@@ -3,21 +3,13 @@
 # Define your item pipelines here
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
+# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
 import time
 
 import pymongo
 
-from stackoverflow.items import QuestionItem, AnswerItem, QuestionFullItem
-
-
-class TimePipeline(object):
-    def process_item(self, item, spider):
-        now = time.strftime('%Y-%m-%d %H:%M', time.localtime())
-        if isinstance(item, QuestionItem) or isinstance(item, AnswerItem):
-            item['processed_time'] = now
-            return item
+from googlegroup.items import QuestionItem, AnswerItem
 
 
 class MongoPipeline(object):
@@ -43,9 +35,8 @@ class MongoPipeline(object):
         self.client.close()
 
     def process_item(self, item, spider):
-        if isinstance(item, QuestionItem) or isinstance(item, QuestionFullItem):
+        if isinstance(item, QuestionItem):
             self.db[item.collection].update({'q_id': item.get('q_id')}, {'$set': item}, True)
         elif isinstance(item, AnswerItem):
-            self.db[item.collection].update({'q_id': item.get('q_id')}, {'$push': {"answers": item}}, True)
-            # self.db[item.collection].update({'a_id': item.get('a_id')}, {'$set': item}, True)
+            self.db[item.collection].update({'a_id': item.get('a_id')}, {'$set': item}, True)
         return item

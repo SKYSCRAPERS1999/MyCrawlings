@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>stackoverflow.spiders.alluxio API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>stackoverflow.spiders.alluxio</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python"># -*- coding: utf-8 -*-
+import scrapy
+from scrapy import Request
+
+from stackoverflow.items import QuestionItem, QuestionFullItem, AnswerItem
+
+
+class AlluxioSpider(scrapy.Spider):
+    name = &#39;alluxio&#39;
+    allowed_domains = [&#39;stackoverflow.com&#39;]
+    url_template = &#39;http://stackoverflow.com/search?page={page}&amp;tab=Relevance&amp;q={query}&#39;
+
+    def __init__(self, query=&#34;alluxio&#34;):
+        super().__init__()
+        self.query = query
+
+    def start_requests(self):
+        self.logger.info(&#39;start url: {}&#39;.format(self.url_template.format(query=self.query, page=1)))
+        yield Request(url=self.url_template.format(query=self.query, page=1),
+                      callback=self.parse_questions,
+                      meta={&#39;page&#39;: 1})
+
+    def parse_questions(self, response):
+        self.logger.info(&#39;Question url: {}&#39;.format(response.url))
+
+        questions = response.xpath(&#39;//div[@class=&#34;question-summary search-result&#34;]&#39;)
+        page = response.meta.get(&#39;page&#39;) + 1
+
+        if questions:
+            for question in questions:
+                q_item = QuestionItem()
+                q_item[&#34;title&#34;] = question.xpath(&#39;.//div[@class=&#34;result-link&#34;]/h3/a/@title&#39;).extract_first()
+                q_item[&#39;votes&#39;] = question.xpath(&#39;.//div[@class=&#34;vote&#34;]//span/strong/text()&#39;).extract_first()
+                answer_status = question.xpath(&#39;.//div[contains(@class, &#34;status&#34;)]/strong/text()&#39;).extract_first()
+                if answer_status is None:
+                    continue
+
+                q_item[&#34;time&#34;] = question.xpath(&#39;.//div[contains(@class, &#34;started&#34;)]/span/@title&#39;).extract_first()
+                q_item[&#34;href&#34;] = question.xpath(&#39;.//div[@class=&#34;result-link&#34;]/h3/a/@href&#39;).extract_first()
+                q_item[&#34;href&#34;] = response.urljoin(q_item[&#34;href&#34;])
+                q_item[&#34;q_id&#34;] = question.xpath(&#39;./@id&#39;).extract_first()
+                if q_item[&#34;q_id&#34;].split(&#39;-&#39;) is not None:
+                    q_item[&#34;q_id&#34;] = q_item[&#34;q_id&#34;].split(&#39;-&#39;)[-1]
+
+                self.logger.info(&#34;QuestionItem: &#34; + str(q_item)[:20])
+                yield q_item
+
+                yield Request(url=q_item[&#34;href&#34;],
+                              callback=self.parse_answers, meta={&#39;q_id&#39;: q_item[&#34;q_id&#34;]})
+
+            yield Request(url=self.url_template.format(query=self.query, page=page),
+                          callback=self.parse_questions,
+                          meta={&#39;page&#39;: page})
+
+    def parse_answers(self, response):
+        self.logger.info(&#39;Answer url: {}&#39;.format(response.url))
+
+        question = response.xpath(&#39;//div[@id=&#34;mainbar&#34;]/div[contains(@class, &#34;question&#34;)]&#39;)
+        answers = response.xpath(&#39;//div[@id=&#34;answers&#34;]/div[contains(@class, &#34;answer&#34;)]&#39;)
+        qf_item = QuestionFullItem()
+        qf_item[&#34;q_id&#34;] = question.xpath(&#39;./@data-questionid&#39;).extract_first()
+        # qf_item[&#34;codes&#34;] = question.xpath(&#39;.//code/text()&#39;).extract()
+        qf_item[&#34;content&#34;] = question.xpath(&#39;.//div[@class=&#34;post-text&#34;]&#39;).extract_first()
+
+        self.logger.info(&#34;QuestionFullItem: &#34; + str(qf_item)[:20])
+        yield qf_item
+
+        if answers:
+            for answer in answers:
+                a_item = AnswerItem()
+                a_item[&#34;q_id&#34;] = qf_item[&#34;q_id&#34;]
+                a_item[&#34;a_id&#34;] = answer.xpath(&#39;./@data-answerid&#39;).extract_first()
+                a_item[&#34;content&#34;] = answer.xpath(&#39;.//div[@class=&#34;post-text&#34;]&#39;).extract_first()
+                a_item[&#34;votes&#34;] = answer.xpath(
+                    &#39;.//div[contains(@class,&#34;votecell&#34;)]//div[contains(@class,&#34;js-vote-count&#34;)]/@data-value&#39;).extract_first()
+                # a_item[&#34;codes&#34;] = answer.xpath(&#39;.//code/text()&#39;).extract()
+                a_item[&#34;time&#34;] = answer.xpath(
+                    &#39;.//div[@class=&#34;user-action-time&#34;]/span[@class=&#34;relativetime&#34;]/@title&#39;).extract_first()
+
+                self.logger.info(&#34;AnswerItem: &#34; + str(a_item)[:20])
+                yield a_item</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="stackoverflow.spiders.alluxio.AlluxioSpider"><code class="flex name class">
+<span>class <span class="ident">AlluxioSpider</span></span>
+<span>(</span><span>query='alluxio')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class for scrapy spiders. All spiders must inherit from this
+class.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AlluxioSpider(scrapy.Spider):
+    name = &#39;alluxio&#39;
+    allowed_domains = [&#39;stackoverflow.com&#39;]
+    url_template = &#39;http://stackoverflow.com/search?page={page}&amp;tab=Relevance&amp;q={query}&#39;
+
+    def __init__(self, query=&#34;alluxio&#34;):
+        super().__init__()
+        self.query = query
+
+    def start_requests(self):
+        self.logger.info(&#39;start url: {}&#39;.format(self.url_template.format(query=self.query, page=1)))
+        yield Request(url=self.url_template.format(query=self.query, page=1),
+                      callback=self.parse_questions,
+                      meta={&#39;page&#39;: 1})
+
+    def parse_questions(self, response):
+        self.logger.info(&#39;Question url: {}&#39;.format(response.url))
+
+        questions = response.xpath(&#39;//div[@class=&#34;question-summary search-result&#34;]&#39;)
+        page = response.meta.get(&#39;page&#39;) + 1
+
+        if questions:
+            for question in questions:
+                q_item = QuestionItem()
+                q_item[&#34;title&#34;] = question.xpath(&#39;.//div[@class=&#34;result-link&#34;]/h3/a/@title&#39;).extract_first()
+                q_item[&#39;votes&#39;] = question.xpath(&#39;.//div[@class=&#34;vote&#34;]//span/strong/text()&#39;).extract_first()
+                answer_status = question.xpath(&#39;.//div[contains(@class, &#34;status&#34;)]/strong/text()&#39;).extract_first()
+                if answer_status is None:
+                    continue
+
+                q_item[&#34;time&#34;] = question.xpath(&#39;.//div[contains(@class, &#34;started&#34;)]/span/@title&#39;).extract_first()
+                q_item[&#34;href&#34;] = question.xpath(&#39;.//div[@class=&#34;result-link&#34;]/h3/a/@href&#39;).extract_first()
+                q_item[&#34;href&#34;] = response.urljoin(q_item[&#34;href&#34;])
+                q_item[&#34;q_id&#34;] = question.xpath(&#39;./@id&#39;).extract_first()
+                if q_item[&#34;q_id&#34;].split(&#39;-&#39;) is not None:
+                    q_item[&#34;q_id&#34;] = q_item[&#34;q_id&#34;].split(&#39;-&#39;)[-1]
+
+                self.logger.info(&#34;QuestionItem: &#34; + str(q_item)[:20])
+                yield q_item
+
+                yield Request(url=q_item[&#34;href&#34;],
+                              callback=self.parse_answers, meta={&#39;q_id&#39;: q_item[&#34;q_id&#34;]})
+
+            yield Request(url=self.url_template.format(query=self.query, page=page),
+                          callback=self.parse_questions,
+                          meta={&#39;page&#39;: page})
+
+    def parse_answers(self, response):
+        self.logger.info(&#39;Answer url: {}&#39;.format(response.url))
+
+        question = response.xpath(&#39;//div[@id=&#34;mainbar&#34;]/div[contains(@class, &#34;question&#34;)]&#39;)
+        answers = response.xpath(&#39;//div[@id=&#34;answers&#34;]/div[contains(@class, &#34;answer&#34;)]&#39;)
+        qf_item = QuestionFullItem()
+        qf_item[&#34;q_id&#34;] = question.xpath(&#39;./@data-questionid&#39;).extract_first()
+        # qf_item[&#34;codes&#34;] = question.xpath(&#39;.//code/text()&#39;).extract()
+        qf_item[&#34;content&#34;] = question.xpath(&#39;.//div[@class=&#34;post-text&#34;]&#39;).extract_first()
+
+        self.logger.info(&#34;QuestionFullItem: &#34; + str(qf_item)[:20])
+        yield qf_item
+
+        if answers:
+            for answer in answers:
+                a_item = AnswerItem()
+                a_item[&#34;q_id&#34;] = qf_item[&#34;q_id&#34;]
+                a_item[&#34;a_id&#34;] = answer.xpath(&#39;./@data-answerid&#39;).extract_first()
+                a_item[&#34;content&#34;] = answer.xpath(&#39;.//div[@class=&#34;post-text&#34;]&#39;).extract_first()
+                a_item[&#34;votes&#34;] = answer.xpath(
+                    &#39;.//div[contains(@class,&#34;votecell&#34;)]//div[contains(@class,&#34;js-vote-count&#34;)]/@data-value&#39;).extract_first()
+                # a_item[&#34;codes&#34;] = answer.xpath(&#39;.//code/text()&#39;).extract()
+                a_item[&#34;time&#34;] = answer.xpath(
+                    &#39;.//div[@class=&#34;user-action-time&#34;]/span[@class=&#34;relativetime&#34;]/@title&#39;).extract_first()
+
+                self.logger.info(&#34;AnswerItem: &#34; + str(a_item)[:20])
+                yield a_item</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>scrapy.spiders.Spider</li>
+<li>scrapy.utils.trackref.object_ref</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="stackoverflow.spiders.alluxio.AlluxioSpider.allowed_domains"><code class="name">var <span class="ident">allowed_domains</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+<dt id="stackoverflow.spiders.alluxio.AlluxioSpider.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<section class="desc"><p>str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.</p></section>
+</dd>
+<dt id="stackoverflow.spiders.alluxio.AlluxioSpider.url_template"><code class="name">var <span class="ident">url_template</span></code></dt>
+<dd>
+<section class="desc"><p>str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="stackoverflow.spiders.alluxio.AlluxioSpider.parse_answers"><code class="name flex">
+<span>def <span class="ident">parse_answers</span></span>(<span>self, response)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_answers(self, response):
+    self.logger.info(&#39;Answer url: {}&#39;.format(response.url))
+
+    question = response.xpath(&#39;//div[@id=&#34;mainbar&#34;]/div[contains(@class, &#34;question&#34;)]&#39;)
+    answers = response.xpath(&#39;//div[@id=&#34;answers&#34;]/div[contains(@class, &#34;answer&#34;)]&#39;)
+    qf_item = QuestionFullItem()
+    qf_item[&#34;q_id&#34;] = question.xpath(&#39;./@data-questionid&#39;).extract_first()
+    # qf_item[&#34;codes&#34;] = question.xpath(&#39;.//code/text()&#39;).extract()
+    qf_item[&#34;content&#34;] = question.xpath(&#39;.//div[@class=&#34;post-text&#34;]&#39;).extract_first()
+
+    self.logger.info(&#34;QuestionFullItem: &#34; + str(qf_item)[:20])
+    yield qf_item
+
+    if answers:
+        for answer in answers:
+            a_item = AnswerItem()
+            a_item[&#34;q_id&#34;] = qf_item[&#34;q_id&#34;]
+            a_item[&#34;a_id&#34;] = answer.xpath(&#39;./@data-answerid&#39;).extract_first()
+            a_item[&#34;content&#34;] = answer.xpath(&#39;.//div[@class=&#34;post-text&#34;]&#39;).extract_first()
+            a_item[&#34;votes&#34;] = answer.xpath(
+                &#39;.//div[contains(@class,&#34;votecell&#34;)]//div[contains(@class,&#34;js-vote-count&#34;)]/@data-value&#39;).extract_first()
+            # a_item[&#34;codes&#34;] = answer.xpath(&#39;.//code/text()&#39;).extract()
+            a_item[&#34;time&#34;] = answer.xpath(
+                &#39;.//div[@class=&#34;user-action-time&#34;]/span[@class=&#34;relativetime&#34;]/@title&#39;).extract_first()
+
+            self.logger.info(&#34;AnswerItem: &#34; + str(a_item)[:20])
+            yield a_item</code></pre>
+</details>
+</dd>
+<dt id="stackoverflow.spiders.alluxio.AlluxioSpider.parse_questions"><code class="name flex">
+<span>def <span class="ident">parse_questions</span></span>(<span>self, response)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_questions(self, response):
+    self.logger.info(&#39;Question url: {}&#39;.format(response.url))
+
+    questions = response.xpath(&#39;//div[@class=&#34;question-summary search-result&#34;]&#39;)
+    page = response.meta.get(&#39;page&#39;) + 1
+
+    if questions:
+        for question in questions:
+            q_item = QuestionItem()
+            q_item[&#34;title&#34;] = question.xpath(&#39;.//div[@class=&#34;result-link&#34;]/h3/a/@title&#39;).extract_first()
+            q_item[&#39;votes&#39;] = question.xpath(&#39;.//div[@class=&#34;vote&#34;]//span/strong/text()&#39;).extract_first()
+            answer_status = question.xpath(&#39;.//div[contains(@class, &#34;status&#34;)]/strong/text()&#39;).extract_first()
+            if answer_status is None:
+                continue
+
+            q_item[&#34;time&#34;] = question.xpath(&#39;.//div[contains(@class, &#34;started&#34;)]/span/@title&#39;).extract_first()
+            q_item[&#34;href&#34;] = question.xpath(&#39;.//div[@class=&#34;result-link&#34;]/h3/a/@href&#39;).extract_first()
+            q_item[&#34;href&#34;] = response.urljoin(q_item[&#34;href&#34;])
+            q_item[&#34;q_id&#34;] = question.xpath(&#39;./@id&#39;).extract_first()
+            if q_item[&#34;q_id&#34;].split(&#39;-&#39;) is not None:
+                q_item[&#34;q_id&#34;] = q_item[&#34;q_id&#34;].split(&#39;-&#39;)[-1]
+
+            self.logger.info(&#34;QuestionItem: &#34; + str(q_item)[:20])
+            yield q_item
+
+            yield Request(url=q_item[&#34;href&#34;],
+                          callback=self.parse_answers, meta={&#39;q_id&#39;: q_item[&#34;q_id&#34;]})
+
+        yield Request(url=self.url_template.format(query=self.query, page=page),
+                      callback=self.parse_questions,
+                      meta={&#39;page&#39;: page})</code></pre>
+</details>
+</dd>
+<dt id="stackoverflow.spiders.alluxio.AlluxioSpider.start_requests"><code class="name flex">
+<span>def <span class="ident">start_requests</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def start_requests(self):
+    self.logger.info(&#39;start url: {}&#39;.format(self.url_template.format(query=self.query, page=1)))
+    yield Request(url=self.url_template.format(query=self.query, page=1),
+                  callback=self.parse_questions,
+                  meta={&#39;page&#39;: 1})</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="stackoverflow.spiders" href="index.html">stackoverflow.spiders</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="stackoverflow.spiders.alluxio.AlluxioSpider" href="#stackoverflow.spiders.alluxio.AlluxioSpider">AlluxioSpider</a></code></h4>
+<ul class="two-column">
+<li><code><a title="stackoverflow.spiders.alluxio.AlluxioSpider.allowed_domains" href="#stackoverflow.spiders.alluxio.AlluxioSpider.allowed_domains">allowed_domains</a></code></li>
+<li><code><a title="stackoverflow.spiders.alluxio.AlluxioSpider.name" href="#stackoverflow.spiders.alluxio.AlluxioSpider.name">name</a></code></li>
+<li><code><a title="stackoverflow.spiders.alluxio.AlluxioSpider.parse_answers" href="#stackoverflow.spiders.alluxio.AlluxioSpider.parse_answers">parse_answers</a></code></li>
+<li><code><a title="stackoverflow.spiders.alluxio.AlluxioSpider.parse_questions" href="#stackoverflow.spiders.alluxio.AlluxioSpider.parse_questions">parse_questions</a></code></li>
+<li><code><a title="stackoverflow.spiders.alluxio.AlluxioSpider.start_requests" href="#stackoverflow.spiders.alluxio.AlluxioSpider.start_requests">start_requests</a></code></li>
+<li><code><a title="stackoverflow.spiders.alluxio.AlluxioSpider.url_template" href="#stackoverflow.spiders.alluxio.AlluxioSpider.url_template">url_template</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -6,6 +6,31 @@ from stackoverflow.items import QuestionItem, QuestionFullItem, AnswerItem
 
 
 class AlluxioSpider(scrapy.Spider):
+    """
+    A class to define the iteration order of crawling.
+
+    Attributes
+    ----------
+    name : str
+        the name of this spider class.
+    allowed_domains : list
+        allowed url domain of crawling
+    url_template : str
+        the url format of outer pages in StackOverflow's crawling
+
+    Methods
+    -------
+    `start_requests(self)`:
+        Initialize the starting request of crawling by `yield Request()`.
+
+    `parse_questions(self, response)`:
+        Iterate through question pages and `yields Request()` of all question posts in each page.
+
+    `parse_answers(self, response)`:
+        Crawl a question post yielded by `parse_questions` function.
+
+    """
+
     name = 'alluxio'
     allowed_domains = ['stackoverflow.com']
     url_template = 'http://stackoverflow.com/search?page={page}&tab=Relevance&q={query}'
@@ -15,12 +40,19 @@ class AlluxioSpider(scrapy.Spider):
         self.query = query
 
     def start_requests(self):
+        """Initialize the starting request of crawling by `yield Request()`."""
         self.logger.info('start url: {}'.format(self.url_template.format(query=self.query, page=1)))
         yield Request(url=self.url_template.format(query=self.query, page=1),
                       callback=self.parse_questions,
                       meta={'page': 1})
 
     def parse_questions(self, response):
+        """Iterate through question pages and `yields Request()` of all question posts in each page.
+        Parameters
+        ----------
+        response: scrapy.http.Response
+            HTTP response of a crawled web page.
+        """
         self.logger.info('Question url: {}'.format(response.url))
 
         questions = response.xpath('//div[@class="question-summary search-result"]')
@@ -53,6 +85,12 @@ class AlluxioSpider(scrapy.Spider):
                           meta={'page': page})
 
     def parse_answers(self, response):
+        """Crawl a question post yielded by `parse_questions` function.
+        Parameters
+        ----------
+        response: scrapy.http.Response
+            HTTP response of a crawled web page.
+        """
         self.logger.info('Answer url: {}'.format(response.url))
 
         question = response.xpath('//div[@id="mainbar"]/div[contains(@class, "question")]')

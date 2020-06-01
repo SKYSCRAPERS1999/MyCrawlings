@@ -1,3 +1,6 @@
+"""
+Class definition of crawled items.
+"""
 # -*- coding: utf-8 -*-
 
 # Define here the models for your scraped items
@@ -9,6 +12,9 @@ from scrapy import Item, Field
 
 
 class QuestionItem(Item):
+    """
+    A class to store metadata of posted questions.
+    """
     # define the fields for your item here like:
     # name = scrapy.Field()
     collection = "questions_test"
@@ -22,6 +28,9 @@ class QuestionItem(Item):
 
 
 class QuestionFullItem(Item):
+    """
+    A class to store main content of posted questions.
+    """
     collection = "questions_test"
     q_id = Field()
     content = Field()
@@ -29,6 +38,9 @@ class QuestionFullItem(Item):
 
 
 class AnswerItem(Item):
+    """
+    A class to store answers of posted questions.
+    """
     collection = "questions_test"
     q_id = Field()
     a_id = Field()

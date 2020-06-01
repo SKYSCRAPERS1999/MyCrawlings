@@ -1,3 +1,6 @@
+"""
+Settings of Scrapy framework
+"""
 # -*- coding: utf-8 -*-
 
 # Scrapy settings for stackoverflow project

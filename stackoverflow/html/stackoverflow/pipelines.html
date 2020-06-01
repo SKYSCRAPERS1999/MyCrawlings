@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.2" />
 <title>stackoverflow.pipelines API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Crawling pipelines to process crawled items and then store them into databases." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,11 +20,15 @@
 <h1 class="title">Module <code>stackoverflow.pipelines</code></h1>
 </header>
 <section id="section-intro">
+<p>Crawling pipelines to process crawled items and then store them into databases.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python"># -*- coding: utf-8 -*-
+<pre><code class="python">&#34;&#34;&#34;
+Crawling pipelines to process crawled items and then store them into databases.
+&#34;&#34;&#34;
+# -*- coding: utf-8 -*-
 
 # Define your item pipelines here
 #
@@ -39,6 +43,15 @@ from stackoverflow.items import QuestionItem, AnswerItem, QuestionFullItem
 
 
 class TimePipeline(object):
+    &#34;&#34;&#34;
+    A pipeline class to add time information of crawling.
+
+    Methods
+    -------
+    process_item(self, item, spider):
+        Add time information for `QuestionItem` and `AnswerItem` items when crawling.
+
+    &#34;&#34;&#34;
     def process_item(self, item, spider):
         now = time.strftime(&#39;%Y-%m-%d %H:%M&#39;, time.localtime())
         if isinstance(item, QuestionItem) or isinstance(item, AnswerItem):
@@ -47,6 +60,23 @@ class TimePipeline(object):
 
 
 class MongoPipeline(object):
+    &#34;&#34;&#34;
+    A pipeline class to store crawled items.
+
+    Methods
+    -------
+    open_spider(self, spider):
+        Connect to MongoDB. Create index to accelerate insertion if not exist.
+
+    close_spider(self, spider):
+        Disconnect from MongoDB
+
+    process_item(self, item, spider):
+        This function insert a crawled item into MongoDB.
+        The questions and answers in crawled solutions are stored in the same collection with `q_id` as the unique key.
+        For `QuestionItem` or `QuestionFullItem` items，`process_item` will upsert to the document with the same q_id.
+        For `AnswerItem` items，`process_item` will upsert to `answers` attribute of document with the same q_id.
+    &#34;&#34;&#34;
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
@@ -63,7 +93,7 @@ class MongoPipeline(object):
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
         self.db[QuestionItem.collection].create_index([(&#39;q_id&#39;, pymongo.ASCENDING)])
-        self.db[AnswerItem.collection].create_index([(&#39;a_id&#39;, pymongo.ASCENDING)])
+        self.db[AnswerItem.collection].create_index([(&#39;q_id&#39;, pymongo.ASCENDING)])
 
     def close_spider(self, spider):
         self.client.close()
@@ -91,12 +121,39 @@ class MongoPipeline(object):
 <span>(</span><span>mongo_uri, mongo_db)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>A pipeline class to store crawled items.</p>
+<h2 id="methods">Methods</h2>
+<p>open_spider(self, spider):
+Connect to MongoDB. Create index to accelerate insertion if not exist.</p>
+<p>close_spider(self, spider):
+Disconnect from MongoDB</p>
+<p>process_item(self, item, spider):
+This function insert a crawled item into MongoDB.
+The questions and answers in crawled solutions are stored in the same collection with <code>q_id</code> as the unique key.
+For <code>QuestionItem</code> or <code>QuestionFullItem</code> items，<code>process_item</code> will upsert to the document with the same q_id.
+For <code>AnswerItem</code> items，<code>process_item</code> will upsert to <code>answers</code> attribute of document with the same q_id.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MongoPipeline(object):
+    &#34;&#34;&#34;
+    A pipeline class to store crawled items.
+
+    Methods
+    -------
+    open_spider(self, spider):
+        Connect to MongoDB. Create index to accelerate insertion if not exist.
+
+    close_spider(self, spider):
+        Disconnect from MongoDB
+
+    process_item(self, item, spider):
+        This function insert a crawled item into MongoDB.
+        The questions and answers in crawled solutions are stored in the same collection with `q_id` as the unique key.
+        For `QuestionItem` or `QuestionFullItem` items，`process_item` will upsert to the document with the same q_id.
+        For `AnswerItem` items，`process_item` will upsert to `answers` attribute of document with the same q_id.
+    &#34;&#34;&#34;
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
@@ -113,7 +170,7 @@ class MongoPipeline(object):
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
         self.db[QuestionItem.collection].create_index([(&#39;q_id&#39;, pymongo.ASCENDING)])
-        self.db[AnswerItem.collection].create_index([(&#39;a_id&#39;, pymongo.ASCENDING)])
+        self.db[AnswerItem.collection].create_index([(&#39;q_id&#39;, pymongo.ASCENDING)])
 
     def close_spider(self, spider):
         self.client.close()
@@ -174,7 +231,7 @@ def from_crawler(cls, crawler):
     self.client = pymongo.MongoClient(self.mongo_uri)
     self.db = self.client[self.mongo_db]
     self.db[QuestionItem.collection].create_index([(&#39;q_id&#39;, pymongo.ASCENDING)])
-    self.db[AnswerItem.collection].create_index([(&#39;a_id&#39;, pymongo.ASCENDING)])</code></pre>
+    self.db[AnswerItem.collection].create_index([(&#39;q_id&#39;, pymongo.ASCENDING)])</code></pre>
 </details>
 </dd>
 <dt id="stackoverflow.pipelines.MongoPipeline.process_item"><code class="name flex">
@@ -202,12 +259,24 @@ def from_crawler(cls, crawler):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>A pipeline class to add time information of crawling.</p>
+<h2 id="methods">Methods</h2>
+<p>process_item(self, item, spider):
+Add time information for <code>QuestionItem</code> and <code>AnswerItem</code> items when crawling.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TimePipeline(object):
+    &#34;&#34;&#34;
+    A pipeline class to add time information of crawling.
+
+    Methods
+    -------
+    process_item(self, item, spider):
+        Add time information for `QuestionItem` and `AnswerItem` items when crawling.
+
+    &#34;&#34;&#34;
     def process_item(self, item, spider):
         now = time.strftime(&#39;%Y-%m-%d %H:%M&#39;, time.localtime())
         if isinstance(item, QuestionItem) or isinstance(item, AnswerItem):

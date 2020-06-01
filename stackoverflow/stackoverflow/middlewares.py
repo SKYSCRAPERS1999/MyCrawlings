@@ -1,3 +1,6 @@
+"""
+Downloader middleware classes for anti-crawling.
+"""
 # -*- coding: utf-8 -*-
 
 # Define here the models for your spider middleware
@@ -13,6 +16,20 @@ from stackoverflow.user_agent import agents
 
 
 class ProxyMiddleware(object):
+    """
+    A class to communicate with proxy server. When a request fail several times,
+    this class grabs a random proxy server and configure it as a downloader middleware
+    to use for crawling.
+
+    Methods
+    -------
+    get_random_proxy(self):
+        Grabs a random proxy server.
+
+    process_request(self, response, spider):
+        Grabs a random proxy server and configure it as a downloader middleware to use for crawling.
+    """
+
     def __init__(self, proxy_url):
         self.logger = logging.getLogger(__name__)
         self.proxy_url = proxy_url
@@ -43,7 +60,16 @@ class ProxyMiddleware(object):
 
 
 class RandomUserAgentMiddleware(object):
-    """ 换User-Agent """
+    """
+    A class to randomly change the user agent in HTTP requests. It randomly choose
+    a user agent from a given list and configure it as a downloader middleware.
+
+    Methods
+    -------
+    process_request(self, request, spider):
+        Randomly choose an user agent from `user_agent` in user_agent.py,
+        and then use it to change the user agent in HTTP requests.
+    """
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)

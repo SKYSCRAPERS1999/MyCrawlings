@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.2" />
 <title>stackoverflow.items API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Class definition of crawled items." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,11 +20,15 @@
 <h1 class="title">Module <code>stackoverflow.items</code></h1>
 </header>
 <section id="section-intro">
+<p>Class definition of crawled items.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python"># -*- coding: utf-8 -*-
+<pre><code class="python">&#34;&#34;&#34;
+Class definition of crawled items.
+&#34;&#34;&#34;
+# -*- coding: utf-8 -*-
 
 # Define here the models for your scraped items
 #
@@ -35,6 +39,9 @@ from scrapy import Item, Field
 
 
 class QuestionItem(Item):
+    &#34;&#34;&#34;
+    A class to store metadata of posted questions.
+    &#34;&#34;&#34;
     # define the fields for your item here like:
     # name = scrapy.Field()
     collection = &#34;questions_test&#34;
@@ -48,6 +55,9 @@ class QuestionItem(Item):
 
 
 class QuestionFullItem(Item):
+    &#34;&#34;&#34;
+    A class to store main content of posted questions.
+    &#34;&#34;&#34;
     collection = &#34;questions_test&#34;
     q_id = Field()
     content = Field()
@@ -55,6 +65,9 @@ class QuestionFullItem(Item):
 
 
 class AnswerItem(Item):
+    &#34;&#34;&#34;
+    A class to store answers of posted questions.
+    &#34;&#34;&#34;
     collection = &#34;questions_test&#34;
     q_id = Field()
     a_id = Field()
@@ -79,20 +92,15 @@ class AnswerItem(Item):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for all scraped items.</p>
-<p>In Scrapy, an object is considered an <em>item</em> if it is an instance of either
-:class:<code>BaseItem</code> or :class:<code>dict</code>. For example, when the output of a
-spider callback is evaluated, only instances of :class:<code>BaseItem</code> or
-:class:<code>dict</code> are passed to :ref:<code>item pipelines &lt;topics-item-pipeline&gt;</code>.</p>
-<p>If you need instances of a custom class to be considered items by Scrapy,
-you must inherit from either :class:<code>BaseItem</code> or :class:<code>dict</code>.</p>
-<p>Unlike instances of :class:<code>dict</code>, instances of :class:<code>BaseItem</code> may be
-:ref:<code>tracked &lt;topics-leaks-trackrefs&gt;</code> to debug memory leaks.</p></section>
+<section class="desc"><p>A class to store answers of posted questions.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AnswerItem(Item):
+    &#34;&#34;&#34;
+    A class to store answers of posted questions.
+    &#34;&#34;&#34;
     collection = &#34;questions_test&#34;
     q_id = Field()
     a_id = Field()
@@ -150,20 +158,15 @@ dict(one=1, two=2)</p></section>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for all scraped items.</p>
-<p>In Scrapy, an object is considered an <em>item</em> if it is an instance of either
-:class:<code>BaseItem</code> or :class:<code>dict</code>. For example, when the output of a
-spider callback is evaluated, only instances of :class:<code>BaseItem</code> or
-:class:<code>dict</code> are passed to :ref:<code>item pipelines &lt;topics-item-pipeline&gt;</code>.</p>
-<p>If you need instances of a custom class to be considered items by Scrapy,
-you must inherit from either :class:<code>BaseItem</code> or :class:<code>dict</code>.</p>
-<p>Unlike instances of :class:<code>dict</code>, instances of :class:<code>BaseItem</code> may be
-:ref:<code>tracked &lt;topics-leaks-trackrefs&gt;</code> to debug memory leaks.</p></section>
+<section class="desc"><p>A class to store main content of posted questions.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class QuestionFullItem(Item):
+    &#34;&#34;&#34;
+    A class to store main content of posted questions.
+    &#34;&#34;&#34;
     collection = &#34;questions_test&#34;
     q_id = Field()
     content = Field()</code></pre>
@@ -216,20 +219,15 @@ dict(one=1, two=2)</p></section>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for all scraped items.</p>
-<p>In Scrapy, an object is considered an <em>item</em> if it is an instance of either
-:class:<code>BaseItem</code> or :class:<code>dict</code>. For example, when the output of a
-spider callback is evaluated, only instances of :class:<code>BaseItem</code> or
-:class:<code>dict</code> are passed to :ref:<code>item pipelines &lt;topics-item-pipeline&gt;</code>.</p>
-<p>If you need instances of a custom class to be considered items by Scrapy,
-you must inherit from either :class:<code>BaseItem</code> or :class:<code>dict</code>.</p>
-<p>Unlike instances of :class:<code>dict</code>, instances of :class:<code>BaseItem</code> may be
-:ref:<code>tracked &lt;topics-leaks-trackrefs&gt;</code> to debug memory leaks.</p></section>
+<section class="desc"><p>A class to store metadata of posted questions.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class QuestionItem(Item):
+    &#34;&#34;&#34;
+    A class to store metadata of posted questions.
+    &#34;&#34;&#34;
     # define the fields for your item here like:
     # name = scrapy.Field()
     collection = &#34;questions_test&#34;

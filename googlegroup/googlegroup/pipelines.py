@@ -13,6 +13,24 @@ from googlegroup.items import QuestionItem, AnswerItem
 
 
 class MongoPipeline(object):
+    """
+    A pipeline class to store crawled items.
+
+    Methods
+    -------
+    open_spider(self, spider):
+        Connect to MongoDB. Create index to accelerate insertion if not exist.
+
+    close_spider(self, spider):
+        Disconnect from MongoDB
+
+    process_item(self, item, spider):
+        This function insert a crawled item into MongoDB.
+        The questions and answers in crawled solutions are stored in the same collection with `q_id` as the unique key.
+        For `QuestionItem` or `QuestionFullItem` items，`process_item` will upsert to the document with the same q_id.
+        For `AnswerItem` items，`process_item` will upsert to `answers` attribute of document with the same q_id.
+    """
+    
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db

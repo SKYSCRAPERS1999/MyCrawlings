@@ -10,15 +10,49 @@ from googlegroup.items import QuestionItem, AnswerItem
 
 
 class AlluxioSpider(scrapy.Spider):
+    """
+    A class to define the iteration order of crawling.
+
+    Attributes
+    ----------
+    name : str
+        the name of this spider class.
+    allowed_domains : list
+        allowed url domain of crawling
+    base_url : str
+        the url format of outer pages in GoogleGroup's crawling
+
+    Methods
+    -------
+    `start_requests(self)`:
+        Initialize the starting request of crawling by `yield Request()`.
+
+    `parse(self, response)`:
+        `yields Request()` of all question posts in the alluxio-users's forum page.
+
+    `parse_answers(self, response)`:
+        Crawl a question post yielded by `parse` function.
+
+    """
+
     name = 'alluxio'
     allowed_domains = ['groups.google.com']
     base_url = 'https://groups.google.com/forum'
 
     def start_requests(self):
+        """Initialize the starting request of crawling by `yield Request()`."""
         start_url = 'https://groups.google.com/forum/#!forum/alluxio-users'
         yield Request(url=start_url, callback=self.parse, meta={'is_start': True})
 
     def parse(self, response):
+        """`yields Request()` of all question posts in the alluxio-users's forum page.
+
+        Parameters
+        ----------
+        response: scrapy.http.Response
+            HTTP response of a crawled web page.
+
+        """
         post_items = response.xpath('//div[@class="F0XO1GC-rb-h"]')
         for post_item in post_items:
             post_count = post_item.xpath('.//span[@class="F0XO1GC-rb-r"]/text()').extract_first()
@@ -31,6 +65,15 @@ class AlluxioSpider(scrapy.Spider):
             yield Request(url=post_href, callback=self.parse_post)
 
     def parse_post(self, response):
+        """Crawl a question post yielded by `parse` function.
+
+        Parameters
+        ----------
+        response: scrapy.http.Response
+            HTTP response of a crawled web page.
+
+        """
+
         self.logger.info("Response: " + str(response.url))
         # soup = BeautifulSoup(response.body, 'html.parser')
         # self.logger.info("Post: " + str(soup.prettify()))

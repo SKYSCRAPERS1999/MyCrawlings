@@ -9,6 +9,9 @@ from scrapy import Item, Field
 
 
 class QuestionItem(Item):
+    """
+    A class to store posted questions.
+    """
     # define the fields for your item here like:
     # name = scrapy.Field()
     collection = "questions"
@@ -22,6 +25,9 @@ class QuestionItem(Item):
 
 
 class AnswerItem(Item):
+    """
+    A class to store posted answers.
+    """
     collection = "answers"
     q_id = Field()
     a_id = Field()

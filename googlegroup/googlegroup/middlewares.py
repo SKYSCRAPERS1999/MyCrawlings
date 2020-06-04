@@ -21,6 +21,20 @@ from googlegroup.user_agent import agents
 
 
 class ProxyMiddleware(object):
+    """
+    A class to communicate with proxy server. When a request fail several times,
+    this class grabs a random proxy server and configure it as a downloader middleware
+    to use for crawling.
+
+    Methods
+    -------
+    get_random_proxy(self):
+        Grabs a random proxy server.
+
+    process_request(self, response, spider):
+        Grabs a random proxy server and configure it as a downloader middleware to use for crawling.
+    """
+
     def __init__(self, proxy_url):
         self.logger = logging.getLogger(__name__)
         self.proxy_url = proxy_url
@@ -38,7 +52,16 @@ class ProxyMiddleware(object):
 
 
 class RandomUserAgentMiddleware(object):
-    """ 换User-Agent """
+    """
+    A class to randomly change the user agent in HTTP requests. It randomly choose
+    a user agent from a given list and configure it as a downloader middleware.
+
+    Methods
+    -------
+    process_request(self, request, spider):
+        Randomly choose an user agent from `user_agent` in user_agent.py,
+        and then use it to change the user agent in HTTP requests.
+    """
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
@@ -50,6 +73,14 @@ class RandomUserAgentMiddleware(object):
 
 
 class SeleniumMiddleware:
+    """A class to use the python package `Selenium` to mock a browser and crawl pages by controlling the browser. This download middleware is only enabled when `is_start` is set on Scrapy request's metadata.
+
+    Methods
+    -------
+    process_request(self, request, spider):
+        This function mock a browser and crawl pages by controlling the browser. First it wait for the page to crawl until fully loaded. Second it scroll down the page to load AJAX data by executing some Javascript codes. At last it return the loaded page source as Scrapy's Response for further processes.
+
+    """
     def __init__(self, timeout=None):
         self.logger = getLogger(__name__)
         self.timeout = timeout
@@ -94,21 +125,6 @@ class SeleniumMiddleware:
 
             except TimeoutException:
                 return HtmlResponse(url=request.url, status=500, request=request)
-
-        # else:
-        #
-        #     self.logger.info("Openning url {}".format(request.url))
-        #     try:
-        #         self.browser.get(request.url)
-        #         wait = WebDriverWait(self.browser, 15)
-        #         wait.until(EC.presence_of_element_located((By.XPATH, '//*[@class="F0XO1GC-nb-x"]')))
-        #
-        #         self.logger.info(self.browser.page_source)
-        #         return HtmlResponse(url=request.url, body=self.browser.page_source, request=request, encoding='utf-8',
-        #                             status=200)
-        #
-        #     except TimeoutException:
-        #         return HtmlResponse(url=request.url, status=500, request=request)
 
     @classmethod
     def from_crawler(cls, crawler):

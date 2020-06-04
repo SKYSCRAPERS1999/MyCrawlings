@@ -48,10 +48,12 @@ class AlluxioSpider(scrapy.Spider):
 
     def parse_questions(self, response):
         """Iterate through question pages and `yields Request()` of all question posts in each page.
+
         Parameters
         ----------
         response: scrapy.http.Response
             HTTP response of a crawled web page.
+
         """
         self.logger.info('Question url: {}'.format(response.url))
 
@@ -86,10 +88,12 @@ class AlluxioSpider(scrapy.Spider):
 
     def parse_answers(self, response):
         """Crawl a question post yielded by `parse_questions` function.
+
         Parameters
         ----------
         response: scrapy.http.Response
             HTTP response of a crawled web page.
+
         """
         self.logger.info('Answer url: {}'.format(response.url))
 

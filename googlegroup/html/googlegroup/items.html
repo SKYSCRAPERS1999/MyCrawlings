@@ -35,6 +35,9 @@ from scrapy import Item, Field
 
 
 class QuestionItem(Item):
+    &#34;&#34;&#34;
+    A class to store posted questions.
+    &#34;&#34;&#34;
     # define the fields for your item here like:
     # name = scrapy.Field()
     collection = &#34;questions&#34;
@@ -48,6 +51,9 @@ class QuestionItem(Item):
 
 
 class AnswerItem(Item):
+    &#34;&#34;&#34;
+    A class to store posted answers.
+    &#34;&#34;&#34;
     collection = &#34;answers&#34;
     q_id = Field()
     a_id = Field()
@@ -72,20 +78,15 @@ class AnswerItem(Item):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for all scraped items.</p>
-<p>In Scrapy, an object is considered an <em>item</em> if it is an instance of either
-:class:<code>BaseItem</code> or :class:<code>dict</code>. For example, when the output of a
-spider callback is evaluated, only instances of :class:<code>BaseItem</code> or
-:class:<code>dict</code> are passed to :ref:<code>item pipelines &lt;topics-item-pipeline&gt;</code>.</p>
-<p>If you need instances of a custom class to be considered items by Scrapy,
-you must inherit from either :class:<code>BaseItem</code> or :class:<code>dict</code>.</p>
-<p>Unlike instances of :class:<code>dict</code>, instances of :class:<code>BaseItem</code> may be
-:ref:<code>tracked &lt;topics-leaks-trackrefs&gt;</code> to debug memory leaks.</p></section>
+<section class="desc"><p>A class to store posted answers.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AnswerItem(Item):
+    &#34;&#34;&#34;
+    A class to store posted answers.
+    &#34;&#34;&#34;
     collection = &#34;answers&#34;
     q_id = Field()
     a_id = Field()
@@ -143,20 +144,15 @@ dict(one=1, two=2)</p></section>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for all scraped items.</p>
-<p>In Scrapy, an object is considered an <em>item</em> if it is an instance of either
-:class:<code>BaseItem</code> or :class:<code>dict</code>. For example, when the output of a
-spider callback is evaluated, only instances of :class:<code>BaseItem</code> or
-:class:<code>dict</code> are passed to :ref:<code>item pipelines &lt;topics-item-pipeline&gt;</code>.</p>
-<p>If you need instances of a custom class to be considered items by Scrapy,
-you must inherit from either :class:<code>BaseItem</code> or :class:<code>dict</code>.</p>
-<p>Unlike instances of :class:<code>dict</code>, instances of :class:<code>BaseItem</code> may be
-:ref:<code>tracked &lt;topics-leaks-trackrefs&gt;</code> to debug memory leaks.</p></section>
+<section class="desc"><p>A class to store posted questions.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class QuestionItem(Item):
+    &#34;&#34;&#34;
+    A class to store posted questions.
+    &#34;&#34;&#34;
     # define the fields for your item here like:
     # name = scrapy.Field()
     collection = &#34;questions&#34;

@@ -39,6 +39,24 @@ from googlegroup.items import QuestionItem, AnswerItem
 
 
 class MongoPipeline(object):
+    &#34;&#34;&#34;
+    A pipeline class to store crawled items.
+
+    Methods
+    -------
+    open_spider(self, spider):
+        Connect to MongoDB. Create index to accelerate insertion if not exist.
+
+    close_spider(self, spider):
+        Disconnect from MongoDB
+
+    process_item(self, item, spider):
+        This function insert a crawled item into MongoDB.
+        The questions and answers in crawled solutions are stored in the same collection with `q_id` as the unique key.
+        For `QuestionItem` or `QuestionFullItem` items，`process_item` will upsert to the document with the same q_id.
+        For `AnswerItem` items，`process_item` will upsert to `answers` attribute of document with the same q_id.
+    &#34;&#34;&#34;
+    
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
@@ -82,12 +100,40 @@ class MongoPipeline(object):
 <span>(</span><span>mongo_uri, mongo_db)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>A pipeline class to store crawled items.</p>
+<h2 id="methods">Methods</h2>
+<p>open_spider(self, spider):
+Connect to MongoDB. Create index to accelerate insertion if not exist.</p>
+<p>close_spider(self, spider):
+Disconnect from MongoDB</p>
+<p>process_item(self, item, spider):
+This function insert a crawled item into MongoDB.
+The questions and answers in crawled solutions are stored in the same collection with <code>q_id</code> as the unique key.
+For <code>QuestionItem</code> or <code>QuestionFullItem</code> items，<code>process_item</code> will upsert to the document with the same q_id.
+For <code>AnswerItem</code> items，<code>process_item</code> will upsert to <code>answers</code> attribute of document with the same q_id.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MongoPipeline(object):
+    &#34;&#34;&#34;
+    A pipeline class to store crawled items.
+
+    Methods
+    -------
+    open_spider(self, spider):
+        Connect to MongoDB. Create index to accelerate insertion if not exist.
+
+    close_spider(self, spider):
+        Disconnect from MongoDB
+
+    process_item(self, item, spider):
+        This function insert a crawled item into MongoDB.
+        The questions and answers in crawled solutions are stored in the same collection with `q_id` as the unique key.
+        For `QuestionItem` or `QuestionFullItem` items，`process_item` will upsert to the document with the same q_id.
+        For `AnswerItem` items，`process_item` will upsert to `answers` attribute of document with the same q_id.
+    &#34;&#34;&#34;
+    
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db

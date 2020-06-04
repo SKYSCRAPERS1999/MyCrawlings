@@ -74,10 +74,12 @@ class AlluxioSpider(scrapy.Spider):
 
     def parse_questions(self, response):
         &#34;&#34;&#34;Iterate through question pages and `yields Request()` of all question posts in each page.
+
         Parameters
         ----------
         response: scrapy.http.Response
             HTTP response of a crawled web page.
+
         &#34;&#34;&#34;
         self.logger.info(&#39;Question url: {}&#39;.format(response.url))
 
@@ -112,10 +114,12 @@ class AlluxioSpider(scrapy.Spider):
 
     def parse_answers(self, response):
         &#34;&#34;&#34;Crawl a question post yielded by `parse_questions` function.
+
         Parameters
         ----------
         response: scrapy.http.Response
             HTTP response of a crawled web page.
+
         &#34;&#34;&#34;
         self.logger.info(&#39;Answer url: {}&#39;.format(response.url))
 
@@ -223,10 +227,12 @@ Crawl a question post yielded by <code>parse_questions</code> function.</p></sec
 
     def parse_questions(self, response):
         &#34;&#34;&#34;Iterate through question pages and `yields Request()` of all question posts in each page.
+
         Parameters
         ----------
         response: scrapy.http.Response
             HTTP response of a crawled web page.
+
         &#34;&#34;&#34;
         self.logger.info(&#39;Question url: {}&#39;.format(response.url))
 
@@ -261,10 +267,12 @@ Crawl a question post yielded by <code>parse_questions</code> function.</p></sec
 
     def parse_answers(self, response):
         &#34;&#34;&#34;Crawl a question post yielded by `parse_questions` function.
+
         Parameters
         ----------
         response: scrapy.http.Response
             HTTP response of a crawled web page.
+
         &#34;&#34;&#34;
         self.logger.info(&#39;Answer url: {}&#39;.format(response.url))
 
@@ -337,9 +345,8 @@ errors defaults to 'strict'.</p></section>
 <span>def <span class="ident">parse_answers</span></span>(<span>self, response)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Crawl a question post yielded by <code>parse_questions</code> function.
-Parameters</p>
-<hr>
+<section class="desc"><p>Crawl a question post yielded by <code>parse_questions</code> function.</p>
+<h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>response</code></strong> :&ensp;<code>scrapy.http.Response</code></dt>
 <dd>HTTP response of a crawled web page.</dd>
@@ -350,10 +357,12 @@ Parameters</p>
 </summary>
 <pre><code class="python">def parse_answers(self, response):
     &#34;&#34;&#34;Crawl a question post yielded by `parse_questions` function.
+
     Parameters
     ----------
     response: scrapy.http.Response
         HTTP response of a crawled web page.
+
     &#34;&#34;&#34;
     self.logger.info(&#39;Answer url: {}&#39;.format(response.url))
 
@@ -387,9 +396,8 @@ Parameters</p>
 <span>def <span class="ident">parse_questions</span></span>(<span>self, response)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Iterate through question pages and <code>yields Request()</code> of all question posts in each page.
-Parameters</p>
-<hr>
+<section class="desc"><p>Iterate through question pages and <code>yields Request()</code> of all question posts in each page.</p>
+<h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>response</code></strong> :&ensp;<code>scrapy.http.Response</code></dt>
 <dd>HTTP response of a crawled web page.</dd>
@@ -400,10 +408,12 @@ Parameters</p>
 </summary>
 <pre><code class="python">def parse_questions(self, response):
     &#34;&#34;&#34;Iterate through question pages and `yields Request()` of all question posts in each page.
+
     Parameters
     ----------
     response: scrapy.http.Response
         HTTP response of a crawled web page.
+
     &#34;&#34;&#34;
     self.logger.info(&#39;Question url: {}&#39;.format(response.url))
 

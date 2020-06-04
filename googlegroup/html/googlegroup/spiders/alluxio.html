@@ -36,15 +36,49 @@ from googlegroup.items import QuestionItem, AnswerItem
 
 
 class AlluxioSpider(scrapy.Spider):
+    &#34;&#34;&#34;
+    A class to define the iteration order of crawling.
+
+    Attributes
+    ----------
+    name : str
+        the name of this spider class.
+    allowed_domains : list
+        allowed url domain of crawling
+    base_url : str
+        the url format of outer pages in GoogleGroup&#39;s crawling
+
+    Methods
+    -------
+    `start_requests(self)`:
+        Initialize the starting request of crawling by `yield Request()`.
+
+    `parse(self, response)`:
+        `yields Request()` of all question posts in the alluxio-users&#39;s forum page.
+
+    `parse_answers(self, response)`:
+        Crawl a question post yielded by `parse` function.
+
+    &#34;&#34;&#34;
+
     name = &#39;alluxio&#39;
     allowed_domains = [&#39;groups.google.com&#39;]
     base_url = &#39;https://groups.google.com/forum&#39;
 
     def start_requests(self):
+        &#34;&#34;&#34;Initialize the starting request of crawling by `yield Request()`.&#34;&#34;&#34;
         start_url = &#39;https://groups.google.com/forum/#!forum/alluxio-users&#39;
         yield Request(url=start_url, callback=self.parse, meta={&#39;is_start&#39;: True})
 
     def parse(self, response):
+        &#34;&#34;&#34;`yields Request()` of all question posts in the alluxio-users&#39;s forum page.
+
+        Parameters
+        ----------
+        response: scrapy.http.Response
+            HTTP response of a crawled web page.
+
+        &#34;&#34;&#34;
         post_items = response.xpath(&#39;//div[@class=&#34;F0XO1GC-rb-h&#34;]&#39;)
         for post_item in post_items:
             post_count = post_item.xpath(&#39;.//span[@class=&#34;F0XO1GC-rb-r&#34;]/text()&#39;).extract_first()
@@ -57,6 +91,15 @@ class AlluxioSpider(scrapy.Spider):
             yield Request(url=post_href, callback=self.parse_post)
 
     def parse_post(self, response):
+        &#34;&#34;&#34;Crawl a question post yielded by `parse` function.
+
+        Parameters
+        ----------
+        response: scrapy.http.Response
+            HTTP response of a crawled web page.
+
+        &#34;&#34;&#34;
+
         self.logger.info(&#34;Response: &#34; + str(response.url))
         # soup = BeautifulSoup(response.body, &#39;html.parser&#39;)
         # self.logger.info(&#34;Post: &#34; + str(soup.prettify()))
@@ -114,22 +157,71 @@ class AlluxioSpider(scrapy.Spider):
 <span>(</span><span>name=None, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Base class for scrapy spiders. All spiders must inherit from this
-class.</p></section>
+<section class="desc"><p>A class to define the iteration order of crawling.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>the name of this spider class.</dd>
+<dt><strong><code>allowed_domains</code></strong> :&ensp;<code>list</code></dt>
+<dd>allowed url domain of crawling</dd>
+<dt><strong><code>base_url</code></strong> :&ensp;<code>str</code></dt>
+<dd>the url format of outer pages in GoogleGroup's crawling</dd>
+</dl>
+<h2 id="methods">Methods</h2>
+<p><code>start_requests(self)</code>:
+Initialize the starting request of crawling by <code>yield Request()</code>.</p>
+<p><code>parse(self, response)</code>:
+<code>yields Request()</code> of all question posts in the alluxio-users's forum page.</p>
+<p><code>parse_answers(self, response)</code>:
+Crawl a question post yielded by <code>parse</code> function.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AlluxioSpider(scrapy.Spider):
+    &#34;&#34;&#34;
+    A class to define the iteration order of crawling.
+
+    Attributes
+    ----------
+    name : str
+        the name of this spider class.
+    allowed_domains : list
+        allowed url domain of crawling
+    base_url : str
+        the url format of outer pages in GoogleGroup&#39;s crawling
+
+    Methods
+    -------
+    `start_requests(self)`:
+        Initialize the starting request of crawling by `yield Request()`.
+
+    `parse(self, response)`:
+        `yields Request()` of all question posts in the alluxio-users&#39;s forum page.
+
+    `parse_answers(self, response)`:
+        Crawl a question post yielded by `parse` function.
+
+    &#34;&#34;&#34;
+
     name = &#39;alluxio&#39;
     allowed_domains = [&#39;groups.google.com&#39;]
     base_url = &#39;https://groups.google.com/forum&#39;
 
     def start_requests(self):
+        &#34;&#34;&#34;Initialize the starting request of crawling by `yield Request()`.&#34;&#34;&#34;
         start_url = &#39;https://groups.google.com/forum/#!forum/alluxio-users&#39;
         yield Request(url=start_url, callback=self.parse, meta={&#39;is_start&#39;: True})
 
     def parse(self, response):
+        &#34;&#34;&#34;`yields Request()` of all question posts in the alluxio-users&#39;s forum page.
+
+        Parameters
+        ----------
+        response: scrapy.http.Response
+            HTTP response of a crawled web page.
+
+        &#34;&#34;&#34;
         post_items = response.xpath(&#39;//div[@class=&#34;F0XO1GC-rb-h&#34;]&#39;)
         for post_item in post_items:
             post_count = post_item.xpath(&#39;.//span[@class=&#34;F0XO1GC-rb-r&#34;]/text()&#39;).extract_first()
@@ -142,6 +234,15 @@ class.</p></section>
             yield Request(url=post_href, callback=self.parse_post)
 
     def parse_post(self, response):
+        &#34;&#34;&#34;Crawl a question post yielded by `parse` function.
+
+        Parameters
+        ----------
+        response: scrapy.http.Response
+            HTTP response of a crawled web page.
+
+        &#34;&#34;&#34;
+
         self.logger.info(&#34;Response: &#34; + str(response.url))
         # soup = BeautifulSoup(response.body, &#39;html.parser&#39;)
         # self.logger.info(&#34;Post: &#34; + str(soup.prettify()))
@@ -228,12 +329,25 @@ errors defaults to 'strict'.</p></section>
 <span>def <span class="ident">parse</span></span>(<span>self, response)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p><code>yields Request()</code> of all question posts in the alluxio-users's forum page.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>response</code></strong> :&ensp;<code>scrapy.http.Response</code></dt>
+<dd>HTTP response of a crawled web page.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def parse(self, response):
+    &#34;&#34;&#34;`yields Request()` of all question posts in the alluxio-users&#39;s forum page.
+
+    Parameters
+    ----------
+    response: scrapy.http.Response
+        HTTP response of a crawled web page.
+
+    &#34;&#34;&#34;
     post_items = response.xpath(&#39;//div[@class=&#34;F0XO1GC-rb-h&#34;]&#39;)
     for post_item in post_items:
         post_count = post_item.xpath(&#39;.//span[@class=&#34;F0XO1GC-rb-r&#34;]/text()&#39;).extract_first()
@@ -250,12 +364,26 @@ errors defaults to 'strict'.</p></section>
 <span>def <span class="ident">parse_post</span></span>(<span>self, response)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Crawl a question post yielded by <code>parse</code> function.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>response</code></strong> :&ensp;<code>scrapy.http.Response</code></dt>
+<dd>HTTP response of a crawled web page.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def parse_post(self, response):
+    &#34;&#34;&#34;Crawl a question post yielded by `parse` function.
+
+    Parameters
+    ----------
+    response: scrapy.http.Response
+        HTTP response of a crawled web page.
+
+    &#34;&#34;&#34;
+
     self.logger.info(&#34;Response: &#34; + str(response.url))
     # soup = BeautifulSoup(response.body, &#39;html.parser&#39;)
     # self.logger.info(&#34;Post: &#34; + str(soup.prettify()))
@@ -303,12 +431,13 @@ errors defaults to 'strict'.</p></section>
 <span>def <span class="ident">start_requests</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Initialize the starting request of crawling by <code>yield Request()</code>.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def start_requests(self):
+    &#34;&#34;&#34;Initialize the starting request of crawling by `yield Request()`.&#34;&#34;&#34;
     start_url = &#39;https://groups.google.com/forum/#!forum/alluxio-users&#39;
     yield Request(url=start_url, callback=self.parse, meta={&#39;is_start&#39;: True})</code></pre>
 </details>
